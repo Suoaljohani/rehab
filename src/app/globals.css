@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   MASAR — Rehabilitation Design System
+   Calm · Human · Warm · Clinical without being sterile.
+   Material language: limestone, travertine, soft plaster, matte paper,
+   natural linen, sage leaves, light oak, warm indirect sunlight.
+   ========================================================================== */
+
+@theme {
+  /* ---------- Core brand palette (exact) ---------- */
+  --color-slate-brand: #44556B;   /* Deep Slate Blue */
+  --color-ink: #29323D;           /* Midnight Ink */
+  --color-sage: #97A88B;          /* Soft Sage */
+  --color-clay: #C98D6B;          /* Clay Beige */
+  --color-sand: #E6D5C7;          /* Sand Mist */
+  --color-ivory: #F7F3EE;         /* Warm Ivory */
+
+  /* ---------- UI neutrals (exact) ---------- */
+  --color-page: #F7F3EE;
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #F1EAE2;
+  --color-line: #DED6CC;
+  --color-line-soft: #EAE3DA;
+  --color-text: #2F3540;
+  --color-text-2: #6F7680;
+  --color-text-3: #A4A8AD;
+
+  /* ---------- Semantic (exact base + accessible companions) ---------- */
+  --color-success: #5E8B6F;
+  --color-success-bg: #E9F1EB;
+  --color-success-fg: #3F6B50;
+  --color-warning: #D39A44;
+  --color-warning-bg: #FBF1E1;
+  --color-warning-fg: #8A5E1E;
+  --color-danger: #C85C5C;
+  --color-danger-bg: #F8E7E5;
+  --color-danger-fg: #9B3B3B;
+  --color-info: #6C8AA8;
+  --color-info-bg: #EAF0F5;
+  --color-info-fg: #46617D;
+  --color-disabled: #CFC8C0;
+
+  /* ---------- Tonal scales derived from the brand ---------- */
+  --color-slate-50: #F1F3F6;
+  --color-slate-100: #E3E7EC;
+  --color-slate-200: #C9D0D9;
+  --color-slate-300: #A3AEBC;
+  --color-slate-400: #7A889A;
+  --color-slate-500: #5A6A80;
+  --color-slate-600: #44556B;
+  --color-slate-700: #374659;
+  --color-slate-800: #2F3B4B;
+  --color-slate-900: #29323D;
+  --color-slate-950: #1D242C;
+
+  --color-sage-50: #F3F5F0;
+  --color-sage-100: #E6EBE1;
+  --color-sage-200: #D0DAC7;
+  --color-sage-300: #B4C2A8;
+  --color-sage-400: #97A88B;
+  --color-sage-500: #7D8F71;
+  --color-sage-600: #66785B;
+  --color-sage-700: #526149;
+  --color-sage-800: #414D3B;
+
+  --color-clay-50: #FBF4EF;
+  --color-clay-100: #F5E6DC;
+  --color-clay-200: #EBCDB9;
+  --color-clay-300: #DDAE91;
+  --color-clay-400: #C98D6B;
+  --color-clay-500: #B47552;
+  --color-clay-600: #9A5F40;
+  --color-clay-700: #7C4C34;
+
+  --color-sand-50: #FAF6F2;
+  --color-sand-100: #F1EAE2;
+  --color-sand-200: #E6D5C7;
+  --color-sand-300: #D6BFAC;
+  --color-sand-400: #C2A58E;
+
+  /* ---------- Typography ---------- */
+  --font-sans: var(--font-plex), "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-display: var(--font-naskh), "Noto Naskh Arabic", var(--font-plex), serif;
+
+  --text-display: 3.5rem;
+  --text-display--line-height: 1.15;
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 1.2;
+  --text-h2: 1.875rem;
+  --text-h2--line-height: 1.3;
+  --text-h3: 1.375rem;
+  --text-h3--line-height: 1.4;
+
+  /* ---------- Radius ---------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+  --radius-3xl: 36px;
+
+  /* ---------- Warm shadows (never blue) ---------- */
+  --shadow-xs: 0 1px 2px rgba(64, 48, 34, 0.05);
+  --shadow-sm: 0 1px 2px rgba(64, 48, 34, 0.04), 0 4px 12px -6px rgba(64, 48, 34, 0.10);
+  --shadow-md: 0 1px 2px rgba(64, 48, 34, 0.04), 0 12px 32px -14px rgba(64, 48, 34, 0.16);
+  --shadow-lg: 0 2px 4px rgba(64, 48, 34, 0.04), 0 24px 60px -24px rgba(64, 48, 34, 0.22);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  /* ---------- Motion ---------- */
+  --ease-calm: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --animate-rise: rise 0.6s var(--ease-calm) both;
+  --animate-fade: fade 0.5s var(--ease-calm) both;
+  --animate-breathe: breathe 6s ease-in-out infinite;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.04); opacity: 1; }
+  }
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-color: var(--color-page);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-feature-settings: "kern", "liga";
+    line-height: 1.7;
+  }
+  /* matte paper grain — barely perceptible */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.2  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  body > * { position: relative; z-index: 1; }
+
+  h1, h2, h3, h4 { color: var(--color-ink); letter-spacing: -0.005em; }
+
+  ::selection { background: var(--color-sage-200); color: var(--color-ink); }
+
+  :focus-visible {
+    outline: 2px solid var(--color-slate-600);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  input, textarea, select, button { font: inherit; }
+
+  /* Latin numerals inside Arabic text stay tabular for data */
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ---------- Material surfaces ---------- */
+@layer components {
+  .surface-travertine {
+    background:
+      radial-gradient(120% 80% at 85% 0%, rgba(230, 213, 199, 0.55) 0%, transparent 55%),
+      radial-gradient(90% 70% at 0% 100%, rgba(151, 168, 139, 0.16) 0%, transparent 60%),
+      linear-gradient(180deg, #F9F6F1 0%, #F4EEE6 100%);
+  }
+  .surface-plaster {
+    background:
+      radial-gradient(100% 120% at 100% 0%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 60%),
+      #F1EAE2;
+  }
+  .surface-ink {
+    background:
+      radial-gradient(90% 120% at 100% 0%, rgba(151, 168, 139, 0.18) 0%, transparent 55%),
+      radial-gradient(80% 90% at 0% 100%, rgba(201, 141, 107, 0.14) 0%, transparent 60%),
+      linear-gradient(160deg, #2F3B4B 0%, #29323D 60%, #232B35 100%);
+  }
+  .surface-sage {
+    background:
+      radial-gradient(100% 120% at 0% 0%, rgba(255, 255, 255, 0.5), transparent 60%),
+      #E6EBE1;
+  }
+  .linen-lines {
+    background-image:
+      repeating-linear-gradient(90deg, rgba(120, 100, 80, 0.035) 0 1px, transparent 1px 7px),
+      repeating-linear-gradient(0deg, rgba(120, 100, 80, 0.03) 0 1px, transparent 1px 9px);
+  }
+  .hairline { border-color: var(--color-line); }
+  .scrollbar-calm { scrollbar-width: thin; scrollbar-color: var(--color-line) transparent; }
+}
