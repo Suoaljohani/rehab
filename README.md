@@ -71,6 +71,7 @@ supabase/seed/         demo dataset (01 → 05, after migrations)
 
 ## Before going live
 - Disable public sign-ups in Supabase **Authentication → Providers → Email**. Accounts are created only by admins.
+- Enable **leaked password protection** in Supabase **Authentication → Password security**.
 - Connect an SMS gateway for patient one-time codes, then turn **وضع العرض** off in `/admin/settings`.
 - Turn on **إلزام الموظفين بالتحقق الثنائي** in `/admin/settings` once staff have enrolled.
 - Replace the seeded demo staff passwords, or disable those accounts.
