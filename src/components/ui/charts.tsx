@@ -252,7 +252,8 @@ function SrTable({ title, data, unit }: { title: string; data: Datum[]; unit: st
   return (
     <>
       <figcaption className="sr-only">{title}</figcaption>
-      <table className="sr-only">
+      <div className="sr-only">
+      <table>
         <caption>{title}</caption>
         <tbody>
           {data.map((d, i) => (
@@ -263,6 +264,7 @@ function SrTable({ title, data, unit }: { title: string; data: Datum[]; unit: st
           ))}
         </tbody>
       </table>
+      </div>
     </>
   );
 }

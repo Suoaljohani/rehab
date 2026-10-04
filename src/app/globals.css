@@ -154,7 +154,7 @@
   }
   body > * { position: relative; z-index: 1; }
 
-  h1, h2, h3, h4 { color: var(--color-ink); letter-spacing: -0.005em; }
+  h1, h2, h3, h4 { letter-spacing: -0.005em; }
 
   ::selection { background: var(--color-sage-200); color: var(--color-ink); }
 
