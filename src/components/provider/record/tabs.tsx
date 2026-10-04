@@ -43,7 +43,7 @@ export async function OverviewTab({ ep }: { ep: EpisodeCtx }) {
   ]);
   const a = adh as { rate: number | null; completed: number; eligible: number; session_rate: number | null } | null;
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.5fr_1fr]">
       <div className="space-y-6">
         {flags.length > 0 && <section><h2 className="mb-3 flex items-center gap-2 font-semibold text-ink"><Flag size={17} className="text-clay-500" /> بحاجة إلى انتباه</h2><FlagList flags={flags} showPatient={false} /></section>}
         <Card>
@@ -157,7 +157,7 @@ export async function SessionsTab({ ep, viewerId, canWrite }: { ep: EpisodeCtx; 
     supabase.from("appointments").select("id, starts_at, status, location, provider:profiles!appointments_provider_id_fkey(full_name)").eq("episode_id", ep.id).order("starts_at", { ascending: false }).limit(20),
   ]);
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.6fr_1fr]">
       <div className="space-y-4">
         <div className="flex items-center justify-between"><h2 className="font-semibold text-ink">ملاحظات الجلسات</h2>{canWrite && <NoteDialog episodeId={ep.id} kind="session" size="sm"  icon={<Plus size={15} />} label="تسجيل جلسة" />}</div>
         {(notes ?? []).length === 0 ? <Card><EmptyState compact title="لا توجد ملاحظات جلسات" /></Card> : (notes ?? []).map((n) => (
@@ -169,7 +169,7 @@ export async function SessionsTab({ ep, viewerId, canWrite }: { ep: EpisodeCtx; 
                 {n.author_id === viewerId && <NoteDialog episodeId={ep.id} kind="session" initial={n} size="sm" variant="ghost"  icon={<Edit3 size={14} />} label="تعديل" />}
               </div>
             </div>
-            <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+            <dl className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
               {[["ما ذكره المراجع", n.patient_report], ["الملاحظة الوظيفية", n.functional_observation], ["التدخلات", n.interventions], ["التقدم", n.progress], ["الخطة", n.plan]].filter(([, v]) => v).map(([l, v]) => (
                 <div key={l as string}><dt className="text-xs text-text-2">{l}</dt><dd className="mt-0.5 leading-relaxed text-text">{v}</dd></div>
               ))}
@@ -242,7 +242,7 @@ export async function ProgramTab({ ep, canWrite }: { ep: EpisodeCtx; canWrite: b
         </Card>
       )}
       {current && canWrite && <div className="flex justify-end"><NewProgramDialog episodeId={ep.id} templates={templates ?? []} disabled={closed} /></div>}
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <Card>
           <CardHeader title="آخر التمارين المنفذة" description="الألم والصعوبة كما سجّلها المراجع." />
           {recent.length === 0 ? <p className="text-sm text-text-2">لا يوجد تنفيذ مسجّل.</p> : (
@@ -308,7 +308,7 @@ export async function OutcomesTab({ ep, canWrite }: { ep: EpisodeCtx; canWrite: 
       <Card>
         <CardHeader title="الأهداف" action={canWrite && <GoalDialog episodeId={ep.id} size="sm"  icon={<Plus size={15} />} label="هدف جديد" />} />
         {(goals ?? []).length === 0 ? <EmptyState compact title="لا توجد أهداف" /> : (
-          <ul className="grid gap-4 md:grid-cols-2">{(goals ?? []).map((g) => {
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">{(goals ?? []).map((g) => {
             const b = Number(g.baseline ?? 0), t = Number(g.target ?? 0), c = Number(g.current_value ?? b);
             return (
               <li key={g.id} className="rounded-[18px] border border-line/80 p-4">
@@ -322,7 +322,7 @@ export async function OutcomesTab({ ep, canWrite }: { ep: EpisodeCtx; canWrite: 
         )}
       </Card>
       {canWrite && <Card><CardHeader title="تسجيل قياس" description="Provider-entered outcome — يظهر في الرسم البياني فورًا." /><OutcomeForm episodeId={ep.id} measures={[...byMeasure.keys()]} /></Card>}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {[...byMeasure.entries()].map(([m, pts]) => (
           <Card key={m}><CardHeader title={m} description={`${pts.length} قياسات · ${units.get(m) ?? ""}`} /><LineChart title={m} data={pts} tone="slate" /></Card>
         ))}

@@ -15,7 +15,7 @@ export function TrackForm({ initialRef }: { initialRef?: string }) {
   const r = state?.ok ? state.data : null;
   return (
     <div className="space-y-8">
-      <form action={action} className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+      <form action={action} className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <Field label="رقم الطلب" htmlFor="reference"><Input id="reference" name="reference" dir="ltr" defaultValue={initialRef} placeholder="RH-2026-00125" className="text-end font-mono" required /></Field>
         <Field label="رقم الجوال" htmlFor="phone"><Input id="phone" name="phone" dir="ltr" inputMode="tel" placeholder="05XXXXXXXX" className="text-end" required /></Field>
         <SubmitButton icon={<Search size={18} />}>متابعة</SubmitButton>

@@ -58,7 +58,7 @@ export function NoteDialog({ episodeId, kind, initial, ...t }: { episodeId: stri
             </>
           ) : (
             <>
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field label="التاريخ" htmlFor="nd"><Input id="nd" type="date" name="note_date" defaultValue={v.note_date ?? todayISO()} /></Field>
                 <Field label="نوع الجلسة" htmlFor="st">
                   <Select id="st" name="session_type" defaultValue={v.session_type ?? "جلسة علاجية"}>
@@ -70,7 +70,7 @@ export function NoteDialog({ episodeId, kind, initial, ...t }: { episodeId: stri
               <Field label="ما ذكره المراجع" htmlFor="pr"><Textarea id="pr" name="patient_report" rows={2} defaultValue={v.patient_report ?? ""} /></Field>
               <Field label="الملاحظة الوظيفية" htmlFor="fo"><Textarea id="fo" name="functional_observation" rows={2} defaultValue={v.functional_observation ?? ""} /></Field>
               <Field label="التدخلات" htmlFor="iv"><Textarea id="iv" name="interventions" rows={2} defaultValue={v.interventions ?? ""} /></Field>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="التقدم" htmlFor="pg"><Textarea id="pg" name="progress" rows={2} defaultValue={v.progress ?? ""} /></Field>
                 <Field label="الخطة" htmlFor="pl"><Textarea id="pl" name="plan" rows={2} defaultValue={v.plan ?? ""} /></Field>
               </div>
@@ -123,7 +123,7 @@ export function OutcomeForm({ episodeId, measures }: { episodeId: string; measur
   const [k, setK] = useState(0);
   useCloseOnOk(state, () => setK((x) => x + 1));
   return (
-    <form key={k} action={action} className="grid gap-3 sm:grid-cols-[1.4fr_0.8fr_0.7fr_auto] sm:items-end">
+    <form key={k} action={action} className="grid grid-cols-1 gap-3 sm:grid-cols-[1.4fr_0.8fr_0.7fr_auto] sm:items-end">
       <input type="hidden" name="episode_id" value={episodeId} />
       <Field label="المقياس" htmlFor="om"><Input id="om" name="measure" list="measures" placeholder="مثال: درجة الألم" required /><datalist id="measures">{measures.map((m) => <option key={m} value={m} />)}</datalist></Field>
       <Field label="القيمة" htmlFor="ov"><Input id="ov" name="value" type="number" step="any" required /></Field>

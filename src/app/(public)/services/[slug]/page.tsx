@@ -24,7 +24,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           <ButtonLink href="/start" size="lg" variant="secondary">لست متأكدًا؟ ابدأ رحلتك</ButtonLink>
         </div>
       </PageHero>
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-16 sm:px-8 lg:grid-cols-[1.4fr_1fr]">
+      <section className="mx-auto grid grid-cols-1 max-w-7xl gap-6 px-4 py-16 sm:px-8 lg:grid-cols-[1.4fr_1fr]">
         <div className="space-y-6">
           <Card className="p-8">
             <h2 className="font-display text-2xl font-semibold text-ink">عن الخدمة</h2>
@@ -32,7 +32,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           </Card>
           <Card className="p-8">
             <h2 className="font-display text-2xl font-semibold text-ink">الحالات المستفيدة</h2>
-            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {s.conditions.map((c) => (
                 <li key={c} className="flex items-start gap-3"><span className="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-sage-100 text-sage-700"><Check size={12} /></span><span>{c}</span></li>
               ))}

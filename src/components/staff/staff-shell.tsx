@@ -81,7 +81,7 @@ export function StaffShell({
   );
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[272px_1fr]">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[272px_minmax(0,1fr)]">
       <aside className="surface-ink sticky top-0 hidden h-dvh lg:block">{sidebar}</aside>
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="القائمة">

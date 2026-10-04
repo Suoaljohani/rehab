@@ -5,7 +5,7 @@ export function TableShell({ children, className, toolbar, footer }: { children:
   return (
     <div className={cn("overflow-hidden rounded-[var(--radius-xl)] border border-line/80 bg-surface shadow-[var(--shadow-sm)]", className)}>
       {toolbar && <div className="flex flex-wrap items-center gap-3 border-b border-line-soft px-5 py-3.5">{toolbar}</div>}
-      <div className="scrollbar-calm overflow-x-auto">{children}</div>
+      <div className="scrollbar-calm relative overflow-x-auto">{children}</div>
       {footer && <div className="border-t border-line-soft px-5 py-3 text-sm text-text-2">{footer}</div>}
     </div>
   );

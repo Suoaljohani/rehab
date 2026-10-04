@@ -77,10 +77,20 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
 });
 
 /** Server-side gate for a route group. UI hiding is never the security boundary — RLS is. */
-export async function requireRole(roles: Role[], area: "patient" | "staff" = "staff"): Promise<Viewer> {
+export async function requireRole(roles: Role[], area: "patient" | "staff" = "staff", opts: { allowMfaEnrollment?: boolean } = {}): Promise<Viewer> {
   const viewer = await getViewer();
   if (!viewer) redirect(area === "patient" ? "/login/patient" : "/login/staff");
-  if (viewer.role !== "patient" && viewer.hasMfa && viewer.aal !== "aal2") redirect("/login/mfa");
+  if (viewer.role !== "patient") {
+    if (viewer.hasMfa && viewer.aal !== "aal2") redirect("/login/mfa");
+    // Organisation policy (system_settings.staff_mfa_required): staff without a factor must enrol first.
+    if (!viewer.hasMfa && !opts.allowMfaEnrollment && (await staffMfaRequired())) redirect("/account/security?required=1");
+  }
   if (!roles.includes(viewer.role)) redirect(`/denied?from=${area}`);
   return viewer;
 }
+
+const staffMfaRequired = cache(async () => {
+  const supabase = await createClient();
+  const { data } = await supabase.from("system_settings").select("value").eq("key", "staff_mfa_required").maybeSingle();
+  return data?.value === true;
+});

@@ -29,13 +29,13 @@ export function ExerciseForm({ mode, versionId, exerciseId, initial, specialties
       <input type="hidden" name="back" value={back} />
       {versionId && <input type="hidden" name="version_id" value={versionId} />}
       {state && !state.ok && <Notice tone="danger">{state.error}</Notice>}
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="الاسم بالعربية" htmlFor="name" required><Input id="name" name="name" defaultValue={v.name} required /></Field>
         <Field label="الاسم بالإنجليزية" htmlFor="name_en"><Input id="name_en" name="name_en" dir="ltr" defaultValue={v.name_en ?? ""} /></Field>
         <Field label="وصف مختصر" htmlFor="description" className="sm:col-span-2"><Textarea id="description" name="description" rows={2} defaultValue={v.description ?? ""} /></Field>
         <Field label="خطوات التنفيذ (سطر لكل خطوة)" htmlFor="instructions" className="sm:col-span-2" required><Textarea id="instructions" name="instructions" rows={5} defaultValue={(v.instructions ?? []).join("\n")} /></Field>
       </section>
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field label="التخصص" htmlFor="sp" required><Select id="sp" name="specialty_code" defaultValue={v.specialty_code ?? ""}><option value="">—</option>{specialties.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}</Select></Field>
         <Field label="منطقة الجسم" htmlFor="br" required><Select id="br" name="body_region" defaultValue={v.body_region ?? ""}><option value="">—</option>{Object.entries(REGION_LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select></Field>
         <Field label="المستوى" htmlFor="df"><Select id="df" name="difficulty" defaultValue={v.difficulty ?? ""}><option value="">—</option>{Object.entries(DIFFICULTY_LEVEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</Select></Field>
@@ -55,7 +55,7 @@ export function ExerciseForm({ mode, versionId, exerciseId, initial, specialties
           <Field label="المدة التقديرية (ث)" htmlFor="es"><Input id="es" name="est_duration_sec" type="number" min={10} defaultValue={v.est_duration_sec ?? 120} /></Field>
         </div>
       </section>
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="ملاحظات السلامة" htmlFor="sn"><Textarea id="sn" name="safety_notes" rows={3} defaultValue={v.safety_notes ?? ""} /></Field>
         <Field label="موانع الاستخدام" htmlFor="ci"><Textarea id="ci" name="contraindications" rows={3} defaultValue={v.contraindications ?? ""} /></Field>
         {mode === "edit" && <Field label="ملاحظة التغيير (لهذه النسخة)" htmlFor="cn" className="sm:col-span-2"><Input id="cn" name="change_note" defaultValue={v.change_note ?? ""} /></Field>}

@@ -38,13 +38,13 @@ export default async function ProviderToday() {
   return (
     <div className="mx-auto max-w-7xl">
       <PageHeader eyebrow={fDate(today, "day")} title={`${hour < 12 ? "صباح الخير" : "مساء الخير"}، ${viewer.fullName.split(" ")[0]}`} description="هذا ما يحتاج انتباهك اليوم." />
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="جلسات اليوم" value={(appts ?? []).length} icon={<CalendarDays size={18} />} tone="ink" hint={(appts ?? [])[0] ? `الأولى ${fTime(appts![0].starts_at)}` : "لا توجد جلسات"} href="/provider/calendar" />
         <Stat label="بحاجة إلى انتباه" value={flags.length} icon={<HeartPulse size={18} />} tone={flags.length ? "attention" : "default"} hint={high ? `${high} مهمة` : "لا توجد حالات عاجلة"} />
         <Stat label="رسائل جديدة" value={badges.messages} icon={<MessageCircle size={18} />} href="/provider/messages" hint="من المراجعين" />
         <Stat label="مراجعون نشطون" value={active ?? 0} icon={<Users size={18} />} tone="sage" href="/provider/patients" hint={ending ? `${ending} برنامج ينتهي قريبًا` : undefined} />
       </div>
-      <div className="grid gap-8 xl:grid-cols-[1.5fr_1fr]">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1.5fr_1fr]">
         <section aria-labelledby="attention">
           <SectionTitle><span id="attention">مركز الانتباه</span></SectionTitle>
           <FlagList flags={flags} />

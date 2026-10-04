@@ -48,7 +48,7 @@ export function ChartDemos() {
   const adh = [100, 67, 100, null, 100, 50, 100];
   const pain = [6, 6, 5, 5, 4, 4, 3, 3, 2];
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div>
         <div className="mb-3 text-sm font-medium text-ink">الالتزام اليومي هذا الأسبوع</div>
         <BarChart title="الالتزام اليومي" unit="٪" max={100} data={week.map((l, i) => ({ label: l, value: adh[i] }))} />

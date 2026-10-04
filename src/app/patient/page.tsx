@@ -84,16 +84,16 @@ export default async function TodayPage() {
           );
         })
       ) : live.length > 0 && !paused ? (
-        <Card tone="travertine" className="p-0">
+        <Card tone="travertine" padded={false}>
           <EmptyState title="لا توجد تمارين منزلية مجدولة لك اليوم" description="يوم راحة حسب خطتك. الراحة جزء من التعافي." action={<ButtonLink href="/patient/plan" variant="secondary" size="sm">عرض جدول الأسبوع</ButtonLink>} />
         </Card>
       ) : !paused ? (
-        <Card tone="travertine" className="p-0">
+        <Card tone="travertine" padded={false}>
           <EmptyState title="لا يوجد برنامج منزلي نشط" description="سيظهر برنامجك هنا بمجرد أن ينشره مقدم الرعاية. يمكنك الاطلاع على دليل المراجع في الأثناء." action={<ButtonLink href="/guide" variant="secondary" size="sm">دليل المراجع</ButtonLink>} />
         </Card>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {appt ? (
           <Link href="/patient/appointments" className="group rounded-[24px] border border-line/80 bg-surface p-5 transition hover:shadow-[var(--shadow-md)]">
             <div className="flex items-center justify-between">

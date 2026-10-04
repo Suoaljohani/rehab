@@ -14,7 +14,7 @@ export default async function GuidePage() {
     <>
       <PageHero eyebrow="دليل المراجع" title="كل ما تحتاج معرفته قبل رحلتك وأثناءها" />
       <section className="mx-auto max-w-5xl px-4 py-16 sm:px-8">
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {sections.map((s, i) => {
             const I = ICONS[i % ICONS.length];
             return (

@@ -31,7 +31,7 @@ export default async function ProviderThread({ params, searchParams }: { params:
   return (
     <div className="mx-auto max-w-7xl">
       <MarkRead threadId={id} />
-      <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[400px_1fr]">
         <div className="hidden lg:block"><StaffInbox viewerId={viewer.id} filter={f} base="/provider/messages" activeId={id} /></div>
         <section className="flex min-h-[70dvh] flex-col rounded-[24px] border border-line/80 bg-surface shadow-[var(--shadow-sm)]">
           <header className="flex flex-wrap items-start justify-between gap-3 border-b border-line-soft p-5">

@@ -5,7 +5,7 @@ import { Logo } from "@/components/brand/logo";
 /** Split-screen sign-in: architectural ink panel + calm form surface. */
 export function AuthShell({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
+    <div className="grid grid-cols-1 min-h-dvh lg:grid-cols-[1.05fr_1fr]">
       <main id="main" className="flex flex-col px-5 py-6 sm:px-10">
         <div className="flex items-center justify-between">
           <Link href="/" aria-label="الصفحة الرئيسية"><Logo /></Link>

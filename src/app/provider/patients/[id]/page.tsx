@@ -50,7 +50,7 @@ export default async function PatientRecord({ params, searchParams }: { params: 
           </div>
           {canWrite && <EpisodeStatusControl episodeId={ep.id} status={ep.status} />}
         </div>
-        <div className="mt-6 grid gap-4 border-t border-line/60 pt-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-1 gap-4 border-t border-line/60 pt-5 sm:grid-cols-2 lg:grid-cols-4">
           <div><div className="text-xs text-text-2">الرحلة التأهيلية</div><div className="mt-0.5 font-medium text-ink">{ep.title}</div><div className="text-xs text-text-3" dir="ltr">{ep.code}</div></div>
           <div><div className="text-xs text-text-2">الحالة</div><div className="mt-1"><StatusBadge map={EPISODE_STATUS} value={ep.status} /></div></div>
           <div><div className="text-xs text-text-2">{CARE_ROLE_LABEL.primary}</div><div className="mt-0.5 font-medium text-ink">{primary?.provider.full_name ?? <span className="text-clay-600">غير معيّن</span>}</div></div>

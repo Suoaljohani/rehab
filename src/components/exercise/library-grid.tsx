@@ -29,7 +29,7 @@ export function LibraryFilters({ base, q, region, specialty, difficulty, status,
 export function LibraryGrid({ items, hrefBase, showStatus }: { items: LibCard[]; hrefBase: string; showStatus?: boolean }) {
   if (items.length === 0) return <div className="rounded-[24px] border border-line bg-surface"><EmptyState title="لا توجد نتائج" description="جرّب تغيير الفلاتر أو كلمة البحث." /></div>;
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
       {items.map((e) => (
         <li key={e.id}>
           <Link href={`${hrefBase}/${e.id}`} className="group block overflow-hidden rounded-[22px] border border-line/80 bg-surface shadow-[var(--shadow-xs)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">

@@ -13,7 +13,7 @@ export default async function ContactPage() {
   return (
     <>
       <PageHero eyebrow="تواصل معنا" title="نحن هنا لمساعدتك" description="للاستفسارات العامة وطلبات المواعيد. للحالات الطارئة اتصل بالطوارئ فورًا." />
-      <section className="mx-auto grid max-w-6xl gap-5 px-4 py-16 sm:px-8 md:grid-cols-2">
+      <section className="mx-auto grid grid-cols-1 max-w-6xl gap-5 px-4 py-16 sm:px-8 md:grid-cols-2">
         <div className="space-y-4 rounded-[28px] border border-line bg-surface p-8 shadow-[var(--shadow-sm)]">
           {[[Phone, "الهاتف", c.phone, true], [Mail, "البريد الإلكتروني", c.email, true], [MapPin, "العنوان", [c.address, c.city].filter(Boolean).join(" — "), false]].map(([I, l, v, ltr]) => {
             const Icon = I as typeof Phone;

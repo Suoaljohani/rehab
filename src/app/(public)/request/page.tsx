@@ -10,7 +10,7 @@ export default async function RequestPage({ searchParams }: { searchParams: Prom
   const specialties = await getSpecialties();
   return (
     <section className="surface-travertine">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-8 lg:grid-cols-[1fr_1.3fr]">
+      <div className="mx-auto grid grid-cols-1 max-w-6xl gap-12 px-4 py-16 sm:px-8 lg:grid-cols-[1fr_1.3fr]">
         <div>
           <div className="text-sm font-medium text-sage-700">{type === "referral" ? "لدي إحالة" : "طلب موعد"}</div>
           <h1 className="mt-2 font-display text-[2.5rem] font-semibold leading-tight text-ink">لنبدأ رحلتك معًا</h1>

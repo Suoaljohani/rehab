@@ -28,7 +28,7 @@ export default async function ProviderExercise({ params }: { params: Promise<{ i
       </div>
       {d.ex.status === "archived" && <Notice tone="neutral" className="mb-5">هذا التمرين مؤرشف ولا يمكن إضافته لبرامج جديدة. يبقى ظاهرًا تاريخيًا في البرامج السابقة.</Notice>}
       {editable ? (
-        <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.5fr_1fr]">
           <Card className="p-6">
             {d.latest!.status === "changes_requested" && d.latest!.review_comment && <Notice tone="warning" className="mb-5" title="ملاحظات المراجعة">{d.latest!.review_comment}</Notice>}
             <ExerciseForm mode="edit" versionId={d.latest!.id} exerciseId={d.ex.id} initial={d.latest!} specialties={d.specialties} back="/provider/library" />
@@ -36,7 +36,7 @@ export default async function ProviderExercise({ params }: { params: Promise<{ i
           <div className="space-y-5"><Card><CardHeader title="الوسائط" /><MediaUploader versionId={d.latest!.id} exerciseId={d.ex.id} videoPath={d.latest!.video_path} thumbPath={d.latest!.thumbnail_path} videoUrl={d.latestVideo} /></Card><ReviewTrail events={d.events} /></div>
         </div>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.6fr_1fr]">
           <ExerciseSummary v={d.shown} videoUrl={d.videoUrl} specialtyName={d.specialtyName} />
           <div className="space-y-5"><VersionHistory versions={d.versions} currentId={d.ex.current_version_id} /><ReviewTrail events={d.events} /></div>
         </div>

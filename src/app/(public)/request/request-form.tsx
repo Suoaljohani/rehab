@@ -18,7 +18,7 @@ export function RequestForm({ specialties, defaultService, journey }: { specialt
         <Field label="الاسم الكامل" htmlFor="full_name" required>
           <Input id="full_name" name="full_name" autoComplete="name" required minLength={3} />
         </Field>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field label="رقم الجوال" htmlFor="phone" required hint="سنستخدمه للتواصل ومتابعة الطلب.">
             <Input id="phone" name="phone" type="tel" dir="ltr" inputMode="tel" placeholder="05XXXXXXXX" required className="text-end" pattern="^(05\d{8}|\+?9665\d{8})$" />
           </Field>
@@ -38,7 +38,7 @@ export function RequestForm({ specialties, defaultService, journey }: { specialt
         <Checkbox name="has_referral" label="لدي إحالة من طبيب" description="أحضرها معك في الموعد الأول." defaultChecked={journey === "referral"} />
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-ink">الفترة المناسبة</legend>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <ChoiceCard name="preferred_period" value="صباحًا" label="صباحًا" description="٧:٣٠ – ١٢:٠٠" defaultChecked />
             <ChoiceCard name="preferred_period" value="ظهرًا" label="ظهرًا" description="١٢:٠٠ – ٢:٠٠" />
             <ChoiceCard name="preferred_period" value="أي وقت" label="أي وقت" description="الأقرب المتاح" />

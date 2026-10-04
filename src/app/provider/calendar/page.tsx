@@ -36,7 +36,7 @@ export default async function Calendar({ searchParams }: { searchParams: Promise
           <Link href="/provider/calendar" className={buttonClasses("quiet", "sm")}>هذا الأسبوع</Link>
           <Link href={`/provider/calendar?week=${addDays(start, 7)}`} className={buttonClasses("quiet", "sm")} aria-label="الأسبوع التالي"><ChevronLeft size={16} /></Link>
         </div>} />
-      <div className="grid gap-3 md:grid-cols-7">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-7">
         {Array.from({ length: 7 }).map((_, i) => {
           const d = addDays(start, i);
           const list = byDay.get(d) ?? [];

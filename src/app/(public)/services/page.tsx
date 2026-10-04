@@ -19,7 +19,7 @@ export default async function ServicesPage() {
         ) : (
           <div className="space-y-5">
             {services.map((s) => (
-              <Link key={s.id} href={`/services/${s.slug}`} className="group grid gap-6 rounded-[28px] border border-line/80 bg-surface p-7 shadow-[var(--shadow-sm)] transition hover:shadow-[var(--shadow-md)] md:grid-cols-[auto_1fr_auto] md:items-center">
+              <Link key={s.id} href={`/services/${s.slug}`} className="group grid grid-cols-1 gap-6 rounded-[28px] border border-line/80 bg-surface p-7 shadow-[var(--shadow-sm)] transition hover:shadow-[var(--shadow-md)] md:grid-cols-[auto_1fr_auto] md:items-center">
                 <span className="grid size-16 place-items-center rounded-[20px] bg-sand-100 text-slate-600"><ServiceIcon name={s.icon} size={26} /></span>
                 <div>
                   <h2 className="font-display text-2xl font-semibold text-ink">{s.name} <span className="ms-2 text-sm font-normal text-text-3" dir="ltr">{s.name_en}</span></h2>

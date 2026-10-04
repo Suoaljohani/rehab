@@ -45,7 +45,7 @@ export default async function ProgressPage() {
   return (
     <div className="space-y-6">
       <h1 className="font-display text-[1.875rem] font-semibold text-ink">تقدمي</h1>
-      <div className="grid gap-4 sm:grid-cols-[1.2fr_1fr]">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1.2fr_1fr]">
         <Card tone="sage" className="flex items-center gap-6 p-6">
           <ProgressRing value={w?.rate ?? 0} size={120} stroke={11} label={`الالتزام ${w?.rate ?? 0}٪`}>
             <div><div className="font-display text-3xl font-semibold text-ink tabular">{w?.rate ?? "—"}<span className="text-lg">{w?.rate != null ? "٪" : ""}</span></div></div>

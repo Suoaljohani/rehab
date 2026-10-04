@@ -13,7 +13,7 @@ export default async function ProviderMessages({ searchParams }: { searchParams:
   return (
     <div className="mx-auto max-w-7xl">
       <PageHeader title="الرسائل" description="محادثات مراجعيك فقط. الرسائل ليست قناة للحالات الطارئة." />
-      <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[400px_1fr]">
         <StaffInbox viewerId={viewer.id} filter={f} base="/provider/messages" />
         <div className="hidden rounded-[24px] border border-dashed border-line bg-surface/50 lg:block"><EmptyState icon={<MessageCircle size={24} />} title="اختر محادثة" description="اختر محادثة من القائمة لعرضها والرد." /></div>
       </div>

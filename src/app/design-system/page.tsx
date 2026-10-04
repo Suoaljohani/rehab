@@ -122,7 +122,7 @@ export default function DesignSystemPage() {
 
       <main id="main" className="mx-auto max-w-7xl px-4 sm:px-8">
         <Section id="palette" eyebrow="01 — Core palette" title="لوحة الألوان الأساسية" intro="ستة ألوان تُشكّل الهوية. الأردواز والحبر يمنحان الثقة والوضوح المهني، المريمية تحمل معنى التعافي، والطين والرمل يضيفان الدفء الإنساني.">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {core.map((c) => (
               <div key={c.hex} className="overflow-hidden rounded-[var(--radius-2xl)] border border-line/70 bg-surface shadow-[var(--shadow-sm)]">
                 <div className="flex h-40 flex-col justify-between p-5" style={{ background: c.hex, color: c.fg }}>
@@ -137,7 +137,7 @@ export default function DesignSystemPage() {
             ))}
           </div>
 
-          <div className="mt-12 grid gap-8 lg:grid-cols-2">
+          <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2">
             <div>
               <h3 className="mb-4 font-semibold text-ink">محايدات الواجهة</h3>
               <div className="overflow-hidden rounded-[var(--radius-xl)] border border-line bg-surface">
@@ -198,7 +198,7 @@ export default function DesignSystemPage() {
             <div className="flex-1" style={{ background: "#E6D5C7" }} />
             <div style={{ width: "2%", background: "#C98D6B" }} />
           </div>
-          <div className="mt-5 grid gap-4 text-sm sm:grid-cols-4">
+          <div className="mt-5 grid grid-cols-1 gap-4 text-sm sm:grid-cols-4">
             <div><b className="text-ink">٦٥–٧٠٪</b><p className="text-text-2">العاجي والأبيض: المساحات والسطوح.</p></div>
             <div><b className="text-ink">١٥–٢٠٪</b><p className="text-text-2">الأردواز والحبر: الأفعال والهيكل والنص.</p></div>
             <div><b className="text-ink">٨–١٠٪</b><p className="text-text-2">المريمية: التقدم والتعافي والتحديد.</p></div>
@@ -207,7 +207,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section id="material" eyebrow="03 — Material" title="الخامة والسطوح" intro="سطوح ملموسة ومعمارية بدل الزجاج اللامع: ظلال دافئة خافتة، حبيبات ورق مطفأ، وتدرجات ضوء الشمس غير المباشر.">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               ["surface-travertine", "ترافرتين", "الأقسام الرئيسية والبطاقات الترحيبية"],
               ["surface-plaster", "جص ناعم", "البطاقات الثانوية والمناطق الهادئة"],
@@ -220,7 +220,7 @@ export default function DesignSystemPage() {
               </div>
             ))}
           </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-4">
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
             {[["xs", "var(--shadow-xs)"], ["sm", "var(--shadow-sm)"], ["md", "var(--shadow-md)"], ["lg", "var(--shadow-lg)"]].map(([n, s]) => (
               <div key={n} className="grid h-28 place-items-center rounded-[var(--radius-xl)] bg-surface text-sm text-text-2" style={{ boxShadow: s }}>shadow-{n}</div>
             ))}
@@ -276,7 +276,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section id="forms" eyebrow="06 — Inputs" title="النماذج والمدخلات" intro="حقول هادئة بحدود رفيعة، تركيز واضح بحلقة أردوازية ناعمة، ورسائل خطأ إنسانية.">
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card className="space-y-5">
               <Field label="الاسم الكامل" required htmlFor="n"><Input id="n" placeholder="مثال: سارة محمد" /></Field>
               <Field label="رقم الجوال" htmlFor="p" hint="سنرسل رمز التحقق إلى هذا الرقم."><Input id="p" dir="ltr" placeholder="05X XXX XXXX" className="text-end" /></Field>
@@ -296,7 +296,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section id="status" eyebrow="07 — Status system" title="نظام الحالات الموحد" intro="كل حالة لها اسم واحد ولون واحد ونقطة دلالية في كل المنصة — من الرحلة التأهيلية إلى التمرين والموعد.">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {[["الرحلة التأهيلية", EPISODE_STATUS], ["البرنامج المنزلي", PROGRAM_STATUS], ["مكتبة التمارين", EXERCISE_STATUS], ["المواعيد", APPOINTMENT_STATUS]].map(([t, m]) => (
               <Card key={t as string}>
                 <div className="mb-3 text-sm font-medium text-ink">{t as string}</div>
@@ -309,7 +309,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section id="cards" eyebrow="08 — Surfaces" title="البطاقات" intro="بطاقات بيضاء فوق العاجي الدافئ بحدود خافتة جدًا، مع ظلال دافئة تظهر عند التفاعل فقط.">
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             <Card interactive>
               <CardHeader eyebrow="الرحلة الحالية" title="تأهيل الركبة بعد الرباط الصليبي" action={<StatusBadge map={EPISODE_STATUS} value="active" />} />
               <div className="flex items-center gap-3"><Avatar name="نورة العتيبي" /><div><div className="text-sm font-medium text-ink">أ. نورة العتيبي</div><div className="text-xs text-text-2">أخصائية علاج طبيعي</div></div></div>
@@ -328,7 +328,7 @@ export default function DesignSystemPage() {
               <div className="mt-5"><StepDots total={4} current={0} tone="light" /></div>
             </Card>
           </div>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Stat label="المراجعون النشطون" value="128" icon={<Users size={18} />} hint="+٦ هذا الأسبوع" />
             <Stat label="بحاجة إلى انتباه" value="7" tone="attention" icon={<HeartPulse size={18} />} hint="٣ بلاغات ألم" />
             <Stat label="متوسط الالتزام" value="82٪" tone="sage" icon={<Activity size={18} />} trend={<Sparkline values={[70, 74, 72, 78, 80, 82]} />} />
@@ -357,7 +357,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section id="navigation" eyebrow="10 — Navigation" title="التنقل" intro="المراجع: تنقل سفلي بالمهام. مقدم الرعاية والإدارة: شريط جانبي بحبر عميق، والعنصر المحدد بخلفية مريمية ناعمة — لا أزرق ساطع أبدًا.">
-          <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
             <div className="surface-ink rounded-[var(--radius-2xl)] p-4 text-ivory">
               <div className="mb-6 px-2 pt-2"><Logo tone="light" /></div>
               {[[LayoutGrid, "مركز القيادة", true], [Users, "المراجعين"], [Dumbbell, "Exercise Studio"], [CalendarDays, "المواعيد"], [MessageCircle, "التواصل"]].map(([I, l, a]) => {
@@ -379,7 +379,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section id="feedback" eyebrow="11 — Feedback" title="الحالات الفارغة والأخطاء والتحميل" intro="كل قائمة لها حالة فارغة إنسانية، وكل خطأ يشرح ما حدث وما يمكن فعله، دون لغة تقنية أو لوم.">
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <Card><EmptyState title="لا توجد تمارين منزلية اليوم" description="استمتع بيوم الراحة. موعدك القادم يوم الخميس الساعة ١٠:٣٠ صباحًا." action={<Button variant="secondary" size="sm">عرض خطتي</Button>} /></Card>
             <Card><ErrorState kind="video" title="الفيديو غير متاح حاليًا" description="يمكنك متابعة التمرين من خلال التعليمات المكتوبة، أو المحاولة لاحقًا." action={<Button variant="secondary" size="sm">إعادة المحاولة</Button>} /></Card>
             <Card><ErrorState kind="denied" title="لا تملك صلاحية الوصول" description="هذا الملف غير مرتبط بفريق رعايتك. إذا كنت تعتقد أن هذا خطأ تواصل مع مشرف القسم." /></Card>
@@ -395,7 +395,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section id="patterns" eyebrow="12 — Patient patterns" title="أنماط تجربة المراجع" intro="شاشة «اليوم» أولًا: الفعل قبل المعلومة، أزرار كبيرة، وأقل قدر من النص.">
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="mx-auto w-full max-w-[360px] overflow-hidden rounded-[40px] border-[10px] border-ink bg-page shadow-[var(--shadow-lg)]">
               <div className="p-5">
                 <div className="flex items-center justify-between"><div><div className="text-xs text-text-2">صباح الخير</div><div className="font-semibold text-ink">محمد</div></div><Avatar name="محمد أحمد" size="sm" /></div>
@@ -433,7 +433,7 @@ export default function DesignSystemPage() {
         </Section>
 
         <Section id="principles" eyebrow="13 — Principles" title="مبادئ التصميم">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[
               ["رعاية هادئة", "مساحات واسعة، حركة ناعمة، وألوان منخفضة التشبع تُخفّض التوتر."],
               ["حمل معرفي منخفض", "الفعل المطلوب أولًا، والتفاصيل عند الحاجة فقط (Progressive Disclosure)."],

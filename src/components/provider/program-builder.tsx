@@ -155,7 +155,7 @@ export function ProgramBuilder({ program, version, isRevision, patientName, line
       </div>
 
       {!isRevision && (
-        <div className="mb-5 grid gap-3 rounded-[20px] border border-line/80 bg-surface p-4 sm:grid-cols-[auto_auto_1fr]">
+        <div className="mb-5 grid grid-cols-1 gap-3 rounded-[20px] border border-line/80 bg-surface p-4 sm:grid-cols-[auto_auto_1fr]">
           <Field label="البداية" htmlFor="ms"><Input id="ms" type="date" value={meta.start} onChange={(e) => patchMeta({ start: e.target.value })} /></Field>
           <Field label="النهاية" htmlFor="me"><Input id="me" type="date" value={meta.end} onChange={(e) => patchMeta({ end: e.target.value })} /></Field>
           <Field label="تعليمات عامة للمراجع" htmlFor="mi"><Input id="mi" value={meta.instructions} onChange={(e) => patchMeta({ instructions: e.target.value })} placeholder="تظهر في بداية كل جلسة" /></Field>
@@ -174,7 +174,7 @@ export function ProgramBuilder({ program, version, isRevision, patientName, line
         ))}
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[340px_1fr_380px]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[340px_1fr_380px]">
         <div className={cn(mobilePane !== "library" && "hidden xl:block")}>
           <LibraryPanel library={library} specialties={specialties} added={new Set(lines.map((l) => l.exercise_id))} onAdd={add} pending={pending} />
         </div>
@@ -382,7 +382,7 @@ function PreviewDialog({ open, onClose, title, lines, exOf, totalMin, instructio
   const cur = todays[i];
   return (
     <Dialog open={open} onClose={onClose} title="معاينة كمراجع" description="هكذا سيظهر البرنامج للمراجع على جواله." size="lg">
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Phone>
           <div className="text-[0.6875rem] text-text-2">اليوم</div>
           <div className="surface-ink mt-2 rounded-[22px] p-4 text-ivory">

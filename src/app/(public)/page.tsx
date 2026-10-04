@@ -13,7 +13,7 @@ export default async function HomePage() {
       {/* ---------- Hero ---------- */}
       <section className="surface-travertine relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 linen-lines opacity-50" aria-hidden="true" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 pb-20 pt-14 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:pb-28 lg:pt-20">
+        <div className="relative mx-auto grid grid-cols-1 max-w-7xl items-center gap-12 px-4 pb-20 pt-14 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:pb-28 lg:pt-20">
           <div className="animate-[rise_0.7s_var(--ease-calm)_both]">
             <span className="inline-flex items-center gap-2 rounded-full border border-sage-200 bg-surface/70 px-3.5 py-1.5 text-[0.8125rem] font-medium text-sage-700">
               <span className="size-1.5 rounded-full bg-sage-500" /> {hero.eyebrow ?? "قسم التأهيل الطبي"}
@@ -45,7 +45,7 @@ export default async function HomePage() {
           </div>
           <ButtonLink href="/services" variant="ghost" iconEnd={<ArrowLeft size={16} />}>كل الخدمات</ButtonLink>
         </div>
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
           {services.map((s, i) => (
             <Link key={s.id} href={`/services/${s.slug}`}
               className="group relative flex min-h-[300px] flex-col overflow-hidden rounded-[28px] border border-line/80 bg-surface p-7 shadow-[var(--shadow-sm)] transition duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lg)]">
@@ -67,7 +67,7 @@ export default async function HomePage() {
             <h2 id="how-title" className="mt-2 font-display text-[2.25rem] font-semibold leading-tight text-ink">رحلة واحدة متصلة — من العيادة إلى منزلك</h2>
             <p className="mt-4 text-text-2">كل جلسة حضورية تتحول إلى خطة منزلية واضحة، وكل تمرين تنفذه يصل إلى فريقك ليتابع تقدمك ويعدّل خطتك.</p>
           </div>
-          <ol className="relative mt-16 grid gap-6 md:grid-cols-4">
+          <ol className="relative mt-16 grid grid-cols-1 gap-6 md:grid-cols-4">
             <div className="absolute inset-x-[12%] top-8 hidden h-px bg-gradient-to-l from-transparent via-sage-300 to-transparent md:block" aria-hidden="true" />
             {[
               [ClipboardList, "جلسة حضورية", "يقيّم أخصائيك حالتك ويحدد أهدافك التأهيلية."],
@@ -91,14 +91,14 @@ export default async function HomePage() {
 
       {/* ---------- Value pillars ---------- */}
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-8">
-        <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.2fr]">
           <div className="surface-ink relative overflow-hidden rounded-[32px] p-10 text-ivory">
             <div className="text-sm text-sage-300">للمراجع</div>
             <h2 className="mt-3 font-display text-[2rem] font-semibold leading-snug">افتح المنصة… واعرف ما عليك فعله اليوم.</h2>
             <p className="mt-4 leading-relaxed text-ivory/70">لا قوائم معقدة ولا ملفات متفرقة. شاشة «اليوم» تخبرك بعدد التمارين، والمدة المتوقعة، وموعدك القادم، وأي رسالة جديدة من فريقك.</p>
             <ButtonLink href="/login/patient" variant="ink-light" className="mt-8">دخول المراجع</ButtonLink>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {[
               [Sparkles, "تمارين بالفيديو", "شاهد طريقة الأداء الصحيحة لكل تمرين، مع التعليمات والتحذيرات."],
               [MessageCircleHeart, "تواصل منظم", "اسأل فريقك عن تمرين محدد داخل المنصة بدل الأرقام الشخصية."],
@@ -120,7 +120,7 @@ export default async function HomePage() {
 
       {/* ---------- FAQ ---------- */}
       <section className="border-t border-line/60 bg-surface/50">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-24 sm:px-8 lg:grid-cols-[1fr_1.4fr]">
+        <div className="mx-auto grid grid-cols-1 max-w-7xl gap-12 px-4 py-24 sm:px-8 lg:grid-cols-[1fr_1.4fr]">
           <div>
             <div className="text-sm font-medium text-sage-700">الأسئلة الشائعة</div>
             <h2 className="mt-2 font-display text-[2.25rem] font-semibold leading-tight text-ink">إجابات واضحة قبل أن تبدأ</h2>

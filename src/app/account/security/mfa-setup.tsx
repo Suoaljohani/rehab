@@ -71,7 +71,7 @@ export function MfaSetup() {
           ))}
         </div>
       ) : enroll ? (
-        <div className="grid gap-6 sm:grid-cols-[200px_1fr]">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-[200px_1fr]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={enroll.qr} alt="رمز QR للتحقق الثنائي" className="size-[200px] rounded-[16px] border border-line bg-white p-2" />
           <div className="space-y-4">

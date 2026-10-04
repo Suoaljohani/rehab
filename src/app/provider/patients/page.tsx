@@ -74,7 +74,7 @@ export default async function MyPatients({ searchParams }: { searchParams: Promi
       {list.length === 0 ? (
         <Card><EmptyState title={term ? "لا توجد نتائج بحث" : "لا يوجد مراجعين في هذه القائمة"} description={term ? "جرّب كلمة أخرى." : "سيظهر المراجعون هنا عند إسنادهم إليك."} /></Card>
       ) : (
-        <ul className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
           {list.map((e) => {
             const p = e.patient as unknown as { full_name: string; mrn: string; date_of_birth: string | null; sex: string | null };
             const en = eng.get(e.id);

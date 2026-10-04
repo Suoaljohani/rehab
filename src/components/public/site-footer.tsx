@@ -7,7 +7,7 @@ type Hours = { rows?: { days: string; time: string }[] };
 export function SiteFooter({ contact, hours }: { contact?: Contact; hours?: Hours }) {
   return (
     <footer className="surface-ink text-ivory">
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div className="mx-auto grid grid-cols-1 max-w-7xl gap-12 px-4 py-16 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo tone="light" />
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-ivory/65">منصة رقمية تمتد بها رعايتك التأهيلية من العيادة إلى منزلك — بهدوء، ووضوح، ومتابعة مستمرة.</p>
