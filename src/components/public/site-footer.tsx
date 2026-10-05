@@ -1,15 +1,17 @@
 import Link from "next/link";
-import { Logo } from "@/components/brand/logo";
+import { BrandLockup, type BrandProps } from "@/components/brand/co-brand";
+import { PoweredBy } from "@/components/brand/powered-by";
 
 type Contact = { phone?: string; email?: string; address?: string; city?: string; emergency?: string };
 type Hours = { rows?: { days: string; time: string }[] };
 
-export function SiteFooter({ contact, hours }: { contact?: Contact; hours?: Hours }) {
+export function SiteFooter({ contact, hours, brand }: { contact?: Contact; hours?: Hours; brand?: BrandProps }) {
   return (
     <footer className="surface-ink text-ivory">
       <div className="mx-auto grid grid-cols-1 max-w-7xl gap-12 px-4 py-16 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
-          <Logo tone="light" />
+          <BrandLockup brand={brand} tone="light" />
+          {brand?.hospitalName && <p className="mt-4 text-sm font-medium text-ivory/85">{brand.hospitalName}{brand.hospitalNameEn && <span dir="ltr" className="mt-0.5 block text-xs font-normal text-ivory/45">{brand.hospitalNameEn}</span>}</p>}
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-ivory/65">منصة رقمية تمتد بها رعايتك التأهيلية من العيادة إلى منزلك — بهدوء، ووضوح، ومتابعة مستمرة.</p>
           <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-clay-300/30 bg-clay-400/10 px-3.5 py-1.5 text-xs text-clay-200">
             الحالات الطارئة: اتصل بـ <b dir="ltr">{contact?.emergency ?? "997"}</b>
@@ -45,8 +47,9 @@ export function SiteFooter({ contact, hours }: { contact?: Contact; hours?: Hour
       </div>
       <div className="border-t border-white/5">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-xs text-ivory/45 sm:px-8">
-          <span>© {new Date().getFullYear()} مَسار — قسم التأهيل الطبي</span>
+          <span>© {new Date().getFullYear()} {brand?.hospitalName ? `${brand.hospitalName} · ` : ""}مَسار — قسم التأهيل الطبي</span>
           <span>المنصة ليست بديلًا للطوارئ ولا تقدم تشخيصًا طبيًا.</span>
+          <PoweredBy tone="light" className="w-full justify-center sm:w-auto" />
         </div>
       </div>
     </footer>

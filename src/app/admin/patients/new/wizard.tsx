@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { ArrowLeft, ArrowRight, Check, Copy, KeyRound, ShieldAlert, UserCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, KeyRound, ShieldAlert, UserCheck } from "lucide-react";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Checkbox, ChoiceCard, Field, Input, Select, Textarea } from "@/components/ui/field";
 import { Notice } from "@/components/ui/notice";
 import { useToast } from "@/components/ui/toast";
 import { createPatient, findDuplicates } from "@/lib/actions/admin";
 import { cn } from "@/lib/cn";
+import { digitsOnly, maskNationalId } from "@/lib/identity";
 
 const STEPS = ["الهوية", "البيانات الأساسية", "التواصل", "الرحلة التأهيلية", "فريق الرعاية", "الدخول"];
 type Dup = { id: string; full_name: string; mrn: string; phone: string; date_of_birth: string | null; match_reason: string };
@@ -25,7 +26,7 @@ export function PatientWizard({ specialties, providers }: { specialties: { code:
   const set = (k: string, val: string) => setV((x) => ({ ...x, [k]: val }));
 
   function validate(): string | null {
-    if (step === 0 && v.national_id && !/^[12]\d{9}$/.test(v.national_id)) return "رقم الهوية أو الإقامة يجب أن يتكون من ١٠ أرقام ويبدأ بـ ١ أو ٢.";
+    if (step === 0 && !/^[12]\d{9}$/.test(v.national_id ?? "")) return "رقم الهوية أو الإقامة مطلوب: ١٠ أرقام يبدأ بـ 1 أو 2 — وهو ما يدخل به المراجع.";
     if (step === 1 && (v.full_name ?? "").trim().length < 3) return "اكتب الاسم الكامل.";
     if (step === 2 && !/^(05\d{8})$/.test((v.phone ?? "").replace(/\D/g, ""))) return "رقم الجوال يجب أن يكون بالصيغة 05XXXXXXXX.";
     if (step === 3 && !v.specialty_code) return "اختر الخدمة / التخصص.";
@@ -60,13 +61,13 @@ export function PatientWizard({ specialties, providers }: { specialties: { code:
       <div className="mx-auto max-w-lg py-6 text-center">
         <div className="mx-auto grid size-20 place-items-center rounded-full bg-sage-600 text-white shadow-[var(--shadow-md)]"><Check size={36} strokeWidth={2.4} /></div>
         <h2 className="mt-6 font-display text-2xl font-semibold text-ink">تم إنشاء ملف المراجع</h2>
-        <p className="mt-1 text-text-2">سلّم رقم الدخول للمراجع. يدخل به ثم يتلقى رمز تحقق على جواله.</p>
+        <p className="mt-1 text-text-2">يدخل المراجع برقم هويته، ثم رمز تحقق يصل إلى جواله المسجّل. لا حاجة لتسليمه أي رقم إضافي.</p>
         <div className="mt-6 grid grid-cols-2 gap-3">
-          <div className="rounded-[18px] bg-sand-50 p-4 ring-1 ring-sand-200"><div className="text-xs text-text-2">رقم الدخول</div><div className="mt-1 font-mono text-2xl font-semibold text-ink" dir="ltr">{done.access_id}</div></div>
+          <div className="rounded-[18px] bg-sand-50 p-4 ring-1 ring-sand-200"><div className="text-xs text-text-2">رقم الهوية</div><div className="mt-1 font-mono text-2xl font-semibold text-ink" dir="ltr">{maskNationalId(v.national_id)}</div></div>
           <div className="rounded-[18px] bg-sand-50 p-4 ring-1 ring-sand-200"><div className="text-xs text-text-2">رقم الملف</div><div className="mt-1 font-mono text-2xl font-semibold text-ink" dir="ltr">{done.mrn}</div></div>
         </div>
         <div className="mt-6 flex justify-center gap-2">
-          <Button variant="secondary" icon={<Copy size={16} />} onClick={() => { navigator.clipboard?.writeText(done.access_id); toast({ tone: "success", title: "نُسخ رقم الدخول" }); }}>نسخ رقم الدخول</Button>
+          <Link href="/admin/patients/new" onClick={() => { setDone(null); setStep(0); setV({ create_access: "1", sex: "" }); }} className={buttonClasses("secondary")}>مراجع آخر</Link>
           <Link href={`/admin/patients/${done.patient_id}`} className={buttonClasses("primary")}>فتح الملف</Link>
         </div>
       </div>
@@ -87,7 +88,7 @@ export function PatientWizard({ specialties, providers }: { specialties: { code:
       <div className="min-h-64 space-y-5">
         {step === 0 && (
           <>
-            <Field label="رقم الهوية الوطنية / الإقامة" htmlFor="nid" hint="اختياري حسب سياسة الجهة — يُستخدم لمنع تكرار السجلات."><Input id="nid" dir="ltr" inputMode="numeric" maxLength={10} value={v.national_id ?? ""} onChange={(e) => { set("national_id", e.target.value.replace(/\D/g, "")); setDups(null); }} className="max-w-xs text-end" /></Field>
+            <Field label="رقم الهوية الوطنية / الإقامة" htmlFor="nid" required hint="يدخل به المراجع إلى المنصة، ويمنع تكرار السجلات."><Input id="nid" dir="ltr" inputMode="numeric" maxLength={10} value={v.national_id ?? ""} onChange={(e) => { set("national_id", digitsOnly(e.target.value).slice(0, 10)); setDups(null); }} className="max-w-xs text-end font-mono tracking-wider" /></Field>
             <Notice tone="neutral" icon={<ShieldAlert size={18} />}>جمع الحد الأدنى من البيانات (Data Minimization). لا تُدخل بيانات غير لازمة للرعاية.</Notice>
           </>
         )}
@@ -139,7 +140,7 @@ export function PatientWizard({ specialties, providers }: { specialties: { code:
         )}
         {step === 5 && (
           <div className="space-y-4">
-            <Checkbox checked={v.create_access === "1"} onChange={(e) => set("create_access", e.target.checked ? "1" : "0")} label="إنشاء Patient Access ID للدخول للمنصة" description="يُربط برقم الجوال الموثّق؛ الدخول برقم الدخول + رمز تحقق." />
+            <Checkbox checked={v.create_access === "1"} onChange={(e) => set("create_access", e.target.checked ? "1" : "0")} label="تفعيل دخول المراجع للمنصة" description="يدخل برقم هويته، ثم رمز تحقق يُرسل إلى جواله المسجّل." />
             <div className="rounded-[18px] bg-sand-50 p-5 text-sm ring-1 ring-sand-200">
               <div className="mb-3 flex items-center gap-2 font-semibold text-ink"><KeyRound size={16} /> المراجعة قبل الإنشاء</div>
               <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">

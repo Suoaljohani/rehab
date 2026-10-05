@@ -44,7 +44,7 @@ export default async function PatientRecord({ params, searchParams }: { params: 
             <div>
               <h1 className="font-display text-[1.875rem] font-semibold leading-tight text-ink">{p.full_name}</h1>
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-2">
-                <span dir="ltr">{p.mrn}</span><span>·</span><span>{age(p.date_of_birth) ?? "—"} سنة</span>{p.sex && <><span>·</span><span>{p.sex === "male" ? "ذكر" : "أنثى"}</span></>}<span>·</span><span dir="ltr">{p.access_id}</span>
+                <span dir="ltr">{p.mrn}</span><span>·</span><span>{age(p.date_of_birth) ?? "—"} سنة</span>{p.sex && <><span>·</span><span>{p.sex === "male" ? "ذكر" : "أنثى"}</span></>}
               </div>
             </div>
           </div>

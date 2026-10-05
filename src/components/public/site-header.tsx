@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { Logo } from "@/components/brand/logo";
+import { BrandLockup, type BrandProps } from "@/components/brand/co-brand";
 import { ButtonLink } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
@@ -16,13 +16,16 @@ const NAV = [
   { href: "/contact", label: "تواصل معنا" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ brand }: { brand?: BrandProps }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-line/60 bg-page/85 backdrop-blur-md">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-8">
-        <Link href="/" aria-label="مَسار — الصفحة الرئيسية"><Logo /></Link>
+        <Link href="/" aria-label={`${brand?.hospitalName ? brand.hospitalName + " — " : ""}مَسار — الصفحة الرئيسية`} className="shrink-0">
+          <span className="sm:hidden"><BrandLockup brand={brand} compact logoClassName="h-8 max-w-[7rem]" /></span>
+          <span className="hidden sm:block"><BrandLockup brand={brand} /></span>
+        </Link>
         <nav className="hidden items-center gap-1 lg:flex" aria-label="التنقل الرئيسي">
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} aria-current={path === n.href ? "page" : undefined}

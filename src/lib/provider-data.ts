@@ -21,7 +21,7 @@ export async function getMyEpisodes(viewerId: string, onlyMine: boolean) {
   const supabase = await createClient();
   let q = supabase
     .from("episodes")
-    .select("id, code, title, status, start_date, specialty_code, created_at, patient:patients(id, full_name, mrn, access_id, date_of_birth, sex), care_team:care_team_members(provider_id, role, ended_at, provider:profiles!care_team_members_provider_id_fkey(full_name))")
+    .select("id, code, title, status, start_date, specialty_code, created_at, patient:patients(id, full_name, mrn, national_id, date_of_birth, sex), care_team:care_team_members(provider_id, role, ended_at, provider:profiles!care_team_members_provider_id_fkey(full_name))")
     .order("start_date", { ascending: false });
   if (onlyMine) {
     const { data: mine } = await supabase.from("care_team_members").select("episode_id").eq("provider_id", viewerId).is("ended_at", null);

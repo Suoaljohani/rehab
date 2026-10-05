@@ -9,14 +9,16 @@ import { Notice } from "@/components/ui/notice";
 import { buttonClasses } from "@/components/ui/button";
 import { fDateTime } from "@/lib/format";
 import { BannerEditor, FaqEditor, ObjectBlockEditor, RowsBlockEditor, ServiceEditor } from "./editors";
+import { IdentityEditor } from "./identity";
+import { getBrand } from "@/lib/brand";
 
 export const metadata: Metadata = { title: "إدارة الموقع" };
 
-const TABS = [["home", "الصفحة الرئيسية"], ["contact", "التواصل والساعات"], ["guide", "دليل المراجع"], ["services", "الخدمات"], ["faq", "الأسئلة الشائعة"]] as const;
+const TABS = [["identity", "هوية المستشفى"], ["home", "الصفحة الرئيسية"], ["contact", "التواصل والساعات"], ["guide", "دليل المراجع"], ["services", "الخدمات"], ["faq", "الأسئلة الشائعة"]] as const;
 
 export default async function Cms({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   await requireRole(["admin", "super_admin"]);
-  const { tab = "home" } = await searchParams;
+  const { tab = "identity" } = await searchParams;
   const supabase = await createClient();
   const [{ data: blocks }, { data: services }, { data: faqs }] = await Promise.all([
     supabase.from("cms_blocks").select("key, content, updated_at, profiles!cms_blocks_updated_by_fkey(full_name)"),
@@ -26,13 +28,20 @@ export default async function Cms({ searchParams }: { searchParams: Promise<{ ta
   const B: Record<string, { content: Record<string, unknown>; updated_at: string; by?: string }> = {};
   (blocks ?? []).forEach((b) => { B[b.key] = { content: b.content as Record<string, unknown>, updated_at: b.updated_at, by: (b.profiles as unknown as { full_name: string } | null)?.full_name }; });
   const stamp = (k: string) => B[k] ? `آخر تحديث ${fDateTime(B[k].updated_at)}${B[k].by ? ` · ${B[k].by}` : ""}` : "لم يُنشر بعد";
-  const preview = { home: "/", contact: "/contact", guide: "/guide", services: "/services", faq: "/faq" }[tab] ?? "/";
+  const preview = { identity: "/", home: "/", contact: "/contact", guide: "/guide", services: "/services", faq: "/faq" }[tab] ?? "/";
 
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader eyebrow="البوابة العامة" title="إدارة محتوى الموقع" description="كل تحديث يُنشر فورًا ويُسجَّل في سجل التدقيق. لا يُعرض أي محتوى طبي شخصي على الموقع العام."
         actions={<a href={preview} target="_blank" rel="noreferrer" className={buttonClasses("secondary")}><ExternalLink size={16} /> معاينة الصفحة</a>} />
       <LinkTabs className="mb-6" items={TABS.map(([k, l]) => ({ href: `/admin/cms?tab=${k}`, label: l, active: tab === k }))} />
+
+      {tab === "identity" && (
+        <Card className="p-6">
+          <CardHeader title="الشعار الرسمي للمستشفى" description={stamp("brand")} />
+          <IdentityEditor brand={await getBrand()} />
+        </Card>
+      )}
 
       {tab === "home" && (
         <div className="space-y-6">

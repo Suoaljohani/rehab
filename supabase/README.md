@@ -22,6 +22,6 @@ Migrations in `migrations/` are applied in filename order and are the source of 
 | Provider (OT) | huda@masar.health | Masar@2026! |
 | Provider (SLP) | majed@masar.health | Masar@2026! |
 | Content reviewer | reviewer@masar.health | Masar@2026! |
-| Patient | Access ID `P-482913` | one-time code (shown on screen while `demo_mode` is on) |
+| Patient | National ID `1023456789` | one-time code (shown on screen while `demo_mode` is on) |
 
 Turn `demo_mode` off in **Settings** before production and connect an SMS gateway.

@@ -20,7 +20,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const isProviderArea = viewer.role === "provider";
   const [patients, exercises, providers] = term.length < 2 ? [{ data: [] }, { data: [] }, { data: [] }] : await Promise.all([
     viewer.role === "content_reviewer" ? Promise.resolve({ data: [] as never[] }) :
-      supabase.from("patients").select("id, full_name, mrn, access_id, episodes(id, title, status)").or(`full_name.ilike.%${term}%,mrn.ilike.%${term}%,access_id.ilike.%${term}%`).limit(15),
+      supabase.from("patients").select("id, full_name, mrn, access_id, episodes(id, title, status)").or(/^\d{10}$/.test(term) ? `national_id.eq.${term}` : `full_name.ilike.%${term}%,mrn.ilike.%${term}%`).limit(15),
     supabase.from("exercises").select("id, code, status, current:exercise_versions!exercises_current_fk(name, name_en, body_region)").neq("status", "archived").limit(200),
     supabase.from("profiles").select("id, full_name, role, staff:staff_profiles(title)").neq("role", "patient").ilike("full_name", `%${term}%`).limit(10),
   ]);
@@ -32,7 +32,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <div className="max-w-4xl">
       <PageHeader title={term ? `نتائج البحث: «${term}»` : "البحث"} description="تظهر النتائج حسب صلاحياتك فقط." />
-      {term.length < 2 ? <Card><EmptyState title="اكتب كلمتين على الأقل للبحث" /></Card> : none ? <Card><EmptyState title="لا توجد نتائج" description="جرّب الاسم أو رقم الملف أو رقم الدخول." /></Card> : (
+      {term.length < 2 ? <Card><EmptyState title="اكتب كلمتين على الأقل للبحث" /></Card> : none ? <Card><EmptyState title="لا توجد نتائج" description="جرّب الاسم أو رقم الملف أو رقم الهوية." /></Card> : (
         <div className="space-y-5">
           {pts.length > 0 && (
             <Card>
@@ -43,7 +43,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                   const href = isProviderArea ? (ep ? `/provider/patients/${ep.id}` : "#") : `/admin/patients/${p.id}`;
                   return (
                     <li key={p.id}><Link href={href} className="flex items-center gap-3 py-3 hover:opacity-80">
-                      <Avatar name={p.full_name} size="sm" /><div className="flex-1"><div className="font-medium text-ink">{p.full_name}</div><div className="text-xs text-text-2" dir="ltr">{p.mrn} · {p.access_id}</div></div>
+                      <Avatar name={p.full_name} size="sm" /><div className="flex-1"><div className="font-medium text-ink">{p.full_name}</div><div className="text-xs text-text-2" dir="ltr">{p.mrn}</div></div>
                       <span className="text-sm text-text-2">{ep?.title}</span>
                     </Link></li>
                   );

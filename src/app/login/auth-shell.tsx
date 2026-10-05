@@ -1,18 +1,24 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Logo } from "@/components/brand/logo";
+import { BrandLockup } from "@/components/brand/co-brand";
+import { PoweredBy } from "@/components/brand/powered-by";
+import { getBrand } from "@/lib/brand";
 
 /** Split-screen sign-in: architectural ink panel + calm form surface. */
-export function AuthShell({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
+export async function AuthShell({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
+  const brand = await getBrand();
   return (
     <div className="grid grid-cols-1 min-h-dvh lg:grid-cols-[1.05fr_1fr]">
       <main id="main" className="flex flex-col px-5 py-6 sm:px-10">
         <div className="flex items-center justify-between">
-          <Link href="/" aria-label="الصفحة الرئيسية"><Logo /></Link>
+          <Link href="/" aria-label="الصفحة الرئيسية"><BrandLockup brand={brand} compact logoClassName="h-9" /></Link>
           <Link href="/" className="text-sm text-text-2 hover:text-ink">العودة للموقع</Link>
         </div>
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-12">{children}</div>
-        <p className="text-center text-xs text-text-3">© مَسار · قسم التأهيل الطبي — جميع العمليات الحساسة مسجّلة لأغراض الأمان.</p>
+        <div className="flex flex-col items-center gap-2 text-center">
+          <p className="text-xs text-text-3">© {brand.hospitalName ? `${brand.hospitalName} · ` : ""}مَسار · قسم التأهيل الطبي — جميع العمليات الحساسة مسجّلة لأغراض الأمان.</p>
+          <PoweredBy />
+        </div>
       </main>
       <aside className="surface-ink relative hidden overflow-hidden lg:block" aria-hidden="true">
         <div className="absolute inset-0 linen-lines opacity-40" />

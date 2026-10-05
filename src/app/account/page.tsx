@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, KeyRound } from "lucide-react";
 import { requireRole, STAFF_ROLES } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader, DescriptionList } from "@/components/ui/stat";
@@ -38,7 +38,7 @@ export default async function StaffAccount() {
       </Card>
       <Card>
         <CardHeader title="الأمان" description="التحقق الثنائي يحمي بيانات المراجعين حتى لو كُشفت كلمة المرور." action={viewer.hasMfa ? <Badge tone="success" dot>مفعّل</Badge> : <Badge tone="warning" dot>غير مفعّل</Badge>} />
-        <Link href="/account/security" className={buttonClasses("secondary")}><ShieldCheck size={18} /> إدارة التحقق الثنائي</Link>
+        <div className="flex flex-wrap gap-2.5"><Link href="/account/security" className={buttonClasses("secondary")}><ShieldCheck size={18} /> إدارة التحقق الثنائي</Link><Link href="/account/password" className={buttonClasses("quiet")}><KeyRound size={18} /> تغيير كلمة المرور</Link></div>
       </Card>
     </div>
   );

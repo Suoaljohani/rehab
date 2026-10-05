@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { maskNationalId } from "@/lib/identity";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, ExternalLink } from "lucide-react";
@@ -39,7 +40,7 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
             <Avatar name={p.full_name} size="xl" />
             <div>
               <h1 className="font-display text-[1.875rem] font-semibold text-ink">{p.full_name}</h1>
-              <div className="mt-1 text-sm text-text-2"><span dir="ltr">{p.mrn}</span> · رقم الدخول <span dir="ltr" className="font-mono">{p.access_id}</span></div>
+              <div className="mt-1 text-sm text-text-2"><span dir="ltr">{p.mrn}</span> · رقم الهوية <span dir="ltr" className="font-mono">{maskNationalId(p.national_id)}</span></div>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">

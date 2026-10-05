@@ -15,7 +15,7 @@ export default function LoginChooser() {
           <span className="grid size-12 place-items-center rounded-[14px] bg-sage-100 text-sage-700"><HeartHandshake size={22} /></span>
           <span className="flex-1">
             <span className="block font-semibold text-ink">أنا مراجع</span>
-            <span className="block text-sm text-text-2">الدخول برقم الدخول ورمز التحقق</span>
+            <span className="block text-sm text-text-2">الدخول برقم الهوية ورمز التحقق</span>
           </span>
           <ArrowLeft className="text-text-3 transition group-hover:-translate-x-1 group-hover:text-ink" size={20} />
         </Link>

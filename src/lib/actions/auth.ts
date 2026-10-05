@@ -4,10 +4,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { humanError, type ActionResult } from "@/lib/errors";
 import { homeFor, type Role } from "@/lib/auth";
+import { digitsOnly, NATIONAL_ID_RE } from "@/lib/identity";
 
-export async function requestPatientCode(accessId: string): Promise<ActionResult<{ maskedPhone: string | null; demoCode: string | null }>> {
-  const id = accessId.trim().toUpperCase();
-  if (!/^P-\d{6}$/.test(id)) return { ok: false, error: "رقم الدخول يتكون من الحرف P ثم ستة أرقام، مثل P-482913." };
+export async function requestPatientCode(nationalId: string): Promise<ActionResult<{ maskedPhone: string | null; demoCode: string | null }>> {
+  const id = digitsOnly(nationalId);
+  if (!NATIONAL_ID_RE.test(id)) return { ok: false, error: "رقم الهوية أو الإقامة يتكون من ١٠ أرقام ويبدأ بـ 1 أو 2." };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("request_patient_otp", { p_access_id: id });
   if (error) return { ok: false, error: humanError(error) };
@@ -15,9 +16,12 @@ export async function requestPatientCode(accessId: string): Promise<ActionResult
   return { ok: true, data: { maskedPhone: data.masked_phone ?? null, demoCode: data.demo_code ?? null } };
 }
 
-export async function verifyPatientCode(accessId: string, code: string, next?: string): Promise<ActionResult> {
+export async function verifyPatientCode(nationalId: string, code: string, next?: string): Promise<ActionResult> {
+  const id = digitsOnly(nationalId);
+  if (!NATIONAL_ID_RE.test(id)) return { ok: false, error: "رقم الهوية أو الإقامة غير صحيح." };
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("verify_patient_otp", { p_access_id: accessId.trim().toUpperCase(), p_code: code.trim() });
+  // the RPC parameter keeps its historical name; it now resolves the national ID / Iqama
+  const { data, error } = await supabase.rpc("verify_patient_otp", { p_access_id: id, p_code: digitsOnly(code) });
   if (error) return { ok: false, error: humanError(error) };
   if (!data?.ok) return { ok: false, error: humanError(data?.error) };
   const { error: signInError } = await supabase.auth.signInWithPassword({ email: data.email, password: data.secret });
@@ -52,6 +56,9 @@ export async function staffSignIn(_: unknown, formData: FormData): Promise<Actio
   }
   const { data: lvl } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   if (lvl?.nextLevel === "aal2" && lvl.currentLevel !== "aal2") redirect(`/login/mfa${next ? `?next=${encodeURIComponent(next)}` : ""}`);
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: prof } = await supabase.from("profiles").select("must_change_password").eq("id", user!.id).single();
+  if (prof?.must_change_password) redirect("/account/password?first=1");
   redirect(next && (next.startsWith("/admin") || next.startsWith("/provider")) ? next : homeFor(rec.role as Role));
 }
 

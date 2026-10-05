@@ -7,7 +7,8 @@ import {
   Bell, CalendarDays, ChartNoAxesColumn, Columns3, Dumbbell, Globe, LayoutGrid, Layers, LogOut, Megaphone, Menu, MessageCircle,
   ScrollText, Search, Settings, ShieldCheck, Stethoscope, Sun, UserRound, Users, X, ArrowLeftRight,
 } from "lucide-react";
-import { Logo } from "@/components/brand/logo";
+import { BrandLockup, type BrandProps } from "@/components/brand/co-brand";
+import { PoweredBy } from "@/components/brand/powered-by";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/cn";
 import { createClient } from "@/lib/supabase/client";
@@ -21,10 +22,10 @@ const ICONS: Record<string, typeof Sun> = {
 export type ShellViewer = { fullName: string; roleLabel: string; title: string | null; role: string };
 
 export function StaffShell({
-  viewer, nav, badges, children, switchTo, notifications, idleMinutes = 30,
+  viewer, nav, badges, children, switchTo, notifications, idleMinutes = 30, brand,
 }: {
   viewer: ShellViewer; nav: NavGroup[]; badges: Record<string, number>; children: ReactNode;
-  switchTo?: { href: string; label: string } | null; notifications: number; idleMinutes?: number;
+  switchTo?: { href: string; label: string } | null; notifications: number; idleMinutes?: number; brand?: BrandProps;
 }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
@@ -32,7 +33,7 @@ export function StaffShell({
 
   const sidebar = (
     <div className="flex h-full flex-col">
-      <div className="px-5 pb-6 pt-6"><Link href="/" aria-label="مَسار"><Logo tone="light" /></Link></div>
+      <div className="px-5 pb-6 pt-6"><Link href="/" aria-label={brand?.hospitalName ?? "مَسار"}><BrandLockup brand={brand} tone="light" stacked logoClassName="h-9 max-w-[12rem]" /></Link></div>
       <nav className="scrollbar-calm flex-1 overflow-y-auto px-3" aria-label="التنقل الرئيسي">
         {nav.map((g, gi) => (
           <div key={gi} className="mb-5">
@@ -76,6 +77,7 @@ export function StaffShell({
             <button className="grid size-8 place-items-center rounded-full text-ivory/60 hover:bg-white/10 hover:text-ivory" aria-label="تسجيل الخروج"><LogOut size={16} /></button>
           </form>
         </div>
+        <div className="flex justify-center pb-1 pt-2"><PoweredBy tone="light" className="text-[0.625rem]" /></div>
       </div>
     </div>
   );

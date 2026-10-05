@@ -20,6 +20,9 @@ const naskh = Noto_Naskh_Arabic({
 export const metadata: Metadata = {
   title: { default: "مَسار — منصة التأهيل الطبي", template: "%s · مَسار" },
   description: "رعايتك التأهيلية لا تتوقف بانتهاء الجلسة. منصة رقمية تربط الجلسات الحضورية بالبرنامج المنزلي.",
+  authors: [{ name: "JqAlshalan" }],
+  creator: "JqAlshalan",
+  generator: "Powered by JqAlshalan",
   applicationName: "مَسار",
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icon.svg", apple: "/icon.svg" },

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 const OPTIONS = [
   { v: "referral", label: "لدي إحالة للتأهيل", d: "أرسل طلبك مع بيانات الإحالة وسيتواصل معك القسم.", icon: FileText, go: "/request?type=referral" },
-  { v: "returning", label: "سبق أن راجعت القسم", d: "ادخل إلى حسابك برقم الدخول لمتابعة برنامجك.", icon: RotateCcw, go: "/login/patient" },
+  { v: "returning", label: "سبق أن راجعت القسم", d: "ادخل إلى حسابك برقم هويتك لمتابعة برنامجك.", icon: RotateCcw, go: "/login/patient" },
   { v: "new_appointment", label: "أريد موعدًا جديدًا", d: "قدّم طلب موعد وسيراجعه القسم ويؤكد معك.", icon: CalendarPlus, go: "/request" },
   { v: "find_service", label: "أريد معرفة الخدمة المناسبة", d: "تعرّف على خدمات التأهيل والحالات التي تخدمها.", icon: HelpCircle, go: "/services" },
   { v: "inquiry", label: "لدي استفسار", d: "اطّلع على الأسئلة الشائعة أو تواصل مع القسم.", icon: MessageCircleQuestion, go: "/contact" },

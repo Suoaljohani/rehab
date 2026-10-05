@@ -13,7 +13,7 @@ export function StaffLogin({ next }: { next?: string }) {
     <form action={action} className="space-y-5">
       <input type="hidden" name="next" value={next ?? ""} />
       {state && !state.ok && <Notice tone="danger">{state.error}</Notice>}
-      <Field label="البريد الإلكتروني" htmlFor="email">
+      <Field label="البريد الإلكتروني الوظيفي" htmlFor="email">
         <Input id="email" name="email" type="email" dir="ltr" autoComplete="username" required placeholder="name@masar.health" className="text-end" />
       </Field>
       <Field label="كلمة المرور" htmlFor="password">

@@ -49,8 +49,8 @@ export default async function MyPatients({ searchParams }: { searchParams: Promi
     if (flagMap.has(e.id)) counts.attention = (counts.attention ?? 0) + 1;
   });
   const list = episodes.filter((e) => {
-    const p = e.patient as unknown as { full_name: string; mrn: string; access_id: string };
-    if (term && !(p.full_name.toLowerCase().includes(term) || p.mrn.toLowerCase().includes(term) || p.access_id.toLowerCase().includes(term))) return false;
+    const p = e.patient as unknown as { full_name: string; mrn: string; national_id: string | null };
+    if (term && !(p.full_name.toLowerCase().includes(term) || p.mrn.toLowerCase().includes(term) || (p.national_id ?? "") === term)) return false;
     if (f === "all") return true;
     if (f === "new") return isNew(e);
     if (f === "attention") return flagMap.has(e.id);
@@ -68,7 +68,7 @@ export default async function MyPatients({ searchParams }: { searchParams: Promi
         <form className="relative w-full max-w-xs">
           {scope && <input type="hidden" name="scope" value={scope} />}<input type="hidden" name="f" value={f} />
           <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-text-3" />
-          <input name="q" defaultValue={q} placeholder="الاسم أو رقم الملف أو رقم الدخول" aria-label="بحث في المراجعين" className="h-10 w-full rounded-full border border-line bg-surface ps-9 pe-4 text-sm outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-100" />
+          <input name="q" defaultValue={q} placeholder="الاسم أو رقم الملف أو رقم الهوية" aria-label="بحث في المراجعين" className="h-10 w-full rounded-full border border-line bg-surface ps-9 pe-4 text-sm outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-100" />
         </form>
       </div>
       {list.length === 0 ? (

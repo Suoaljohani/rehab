@@ -24,7 +24,7 @@ export default async function AdminPatients({ searchParams }: { searchParams: Pr
   if (status) query = query.eq("status", status);
   if (specialty) query = query.eq("specialty_code", specialty);
   const term = q.trim().replace(/[%,()]/g, "");
-  if (term) query = query.or(`full_name.ilike.%${term}%,mrn.ilike.%${term}%,access_id.ilike.%${term}%`, { referencedTable: "patients" });
+  if (term) query = /^\d{10}$/.test(term) ? query.eq("patients.national_id", term) : query.or(`full_name.ilike.%${term}%,mrn.ilike.%${term}%`, { referencedTable: "patients" });
   const [{ data, count }, { data: specs }] = await Promise.all([
     query.order("created_at", { ascending: false }).range((p - 1) * PAGE, p * PAGE - 1),
     supabase.from("specialties").select("code, name").order("sort"),
@@ -44,7 +44,7 @@ export default async function AdminPatients({ searchParams }: { searchParams: Pr
       </>} />
       <TableShell
         toolbar={<form className="flex w-full flex-wrap items-center gap-2">
-          <div className="relative min-w-56 flex-1"><Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-text-3" /><input name="q" defaultValue={q} placeholder="الاسم، رقم الملف، أو رقم الدخول" aria-label="بحث" className="h-10 w-full rounded-[12px] border border-line bg-page/40 ps-9 pe-3 text-sm outline-none focus:border-slate-300" /></div>
+          <div className="relative min-w-56 flex-1"><Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-text-3" /><input name="q" defaultValue={q} placeholder="الاسم، رقم الملف، أو رقم الهوية" aria-label="بحث" className="h-10 w-full rounded-[12px] border border-line bg-page/40 ps-9 pe-3 text-sm outline-none focus:border-slate-300" /></div>
           <select name="status" defaultValue={status} aria-label="الحالة" className={sel}><option value="">كل الحالات</option>{Object.entries(EPISODE_STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select>
           <select name="specialty" defaultValue={specialty} aria-label="التخصص" className={sel}><option value="">كل التخصصات</option>{(specs ?? []).map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}</select>
           <button className={buttonClasses("primary", "sm", "h-10")}>تصفية</button>

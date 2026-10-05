@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PoweredBy } from "@/components/brand/powered-by";
 import Link from "next/link";
 import { ChevronLeft, Globe, LogOut, Shield, Users } from "lucide-react";
 import { requireRole } from "@/lib/auth";
@@ -17,7 +18,7 @@ export default async function Account() {
   const viewer = await requireRole(["patient"], "patient");
   const supabase = await createClient();
   const [{ data: p }, { data: prefs }] = await Promise.all([
-    supabase.from("patients").select("full_name, access_id, mrn, phone, date_of_birth, national_id").eq("id", viewer.patientId!).single(),
+    supabase.from("patients").select("full_name, mrn, phone, date_of_birth, national_id").eq("id", viewer.patientId!).single(),
     supabase.from("notification_preferences").select("*").eq("user_id", viewer.id).maybeSingle(),
   ]);
   const mask = (s?: string | null, keep = 3) => (s ? "•".repeat(Math.max(0, s.length - keep)) + s.slice(-keep) : "—");
@@ -26,7 +27,7 @@ export default async function Account() {
       <h1 className="font-display text-[1.875rem] font-semibold text-ink">حسابي</h1>
       <Card tone="travertine" className="flex items-center gap-4 p-6">
         <Avatar name={p?.full_name} size="xl" />
-        <div><div className="text-xl font-semibold text-ink">{p?.full_name}</div><div className="mt-1 font-mono text-sm text-text-2" dir="ltr">{p?.access_id}</div></div>
+        <div><div className="text-xl font-semibold text-ink">{p?.full_name}</div><div className="mt-1 text-sm text-text-2">تدخل برقم هويتك <span dir="ltr" className="font-mono">{mask(p?.national_id, 4)}</span> ورمز تحقق على جوالك</div></div>
       </Card>
       <Card>
         <CardHeader title="بياناتي الأساسية" description="لتعديل البيانات تواصل مع القسم — لا تُعدّل البيانات الحساسة مباشرة." />
@@ -57,6 +58,7 @@ export default async function Account() {
         <div className="flex items-center gap-3 px-5 py-4"><Globe size={19} className="text-slate-600" /><span className="flex-1 text-ink">اللغة</span><span className="text-sm text-text-2">العربية · English قريبًا</span></div>
       </Card>
       <form action={signOut}><Button variant="danger" block size="lg" icon={<LogOut size={18} />}>تسجيل الخروج</Button></form>
+      <div className="flex justify-center pb-2 pt-4"><PoweredBy /></div>
     </div>
   );
 }

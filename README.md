@@ -18,9 +18,16 @@ Arabic-first (RTL), calm premium-wellness visual identity, governed by the datab
 Deep Slate Blue `#44556B` (primary) · Midnight Ink `#29323D` (hover/depth) · Soft Sage `#97A88B` (progress) · Clay Beige `#C98D6B` (sparing accents) · Sand Mist `#E6D5C7` · Warm Ivory `#F7F3EE` (page).
 Tokens live in `src/app/globals.css`; components in `src/components/ui`. No teal, cyan, neon, harsh gradients or glassmorphism.
 
+## Sign-in
+- **Patients** enter their **national ID / Iqama number** (10 digits; Arabic or Latin digits both work), then a one-time code sent to the phone registered with the department. The national ID is required and unique at registration.
+- **Staff** accounts exist only when an admin creates them in **فريق التأهيل → موظف جديد** with the employee's work email and a temporary password. There is no self sign-up. At first sign-in, and after any admin reset, the employee must choose their own password before any patient data is reachable.
+
+## Hospital identity
+Upload the hospital's official logo in **إدارة الموقع → هوية المستشفى** (SVG preferred, PNG/WEBP accepted, up to 1 MB). It appears beside the مَسار platform mark on the public site, sign-in screens, staff workspace and patient app. SVG files are checked and rejected if they contain scripts or external references, and the logo is served from the site's own domain.
+
 ## Stack
 - **Next.js 15** (App Router, RSC, Server Actions) · React 19 · TypeScript · Tailwind CSS v4
-- **Supabase** — Postgres, Auth (Access ID + OTP for patients, email/password + TOTP MFA for staff), Row-Level Security, private Storage with signed URLs
+- **Supabase** — Postgres, Auth (national ID / Iqama + OTP for patients; admin-issued work email + password with forced first-login change and optional TOTP MFA for staff), Row-Level Security, private Storage with signed URLs
 - **Vercel** — hosting
 
 ## Security model (summary)
@@ -38,7 +45,7 @@ Details: [`supabase/README.md`](supabase/README.md).
 | Supervisor | supervisor@masar.health | `Masar@2026!` |
 | Physiotherapist | noura@masar.health | `Masar@2026!` |
 | Content reviewer | reviewer@masar.health | `Masar@2026!` |
-| Patient (knee rehab) | Access ID `P-482913` | One-time code shown on screen while `demo_mode` is on |
+| Patient (knee rehab) | National ID `1023456789` | One-time code shown on screen while `demo_mode` is on |
 
 More accounts and patients are listed in `supabase/README.md`.
 
@@ -76,3 +83,6 @@ supabase/seed/         demo dataset (01 → 05, after migrations)
 - Turn on **إلزام الموظفين بالتحقق الثنائي** in `/admin/settings` once staff have enrolled.
 - Replace the seeded demo staff passwords, or disable those accounts.
 - Upload real exercise videos in Exercise Studio. The bucket is private and served via short-lived signed URLs.
+
+---
+<sub>Powered by **JqAlshalan**</sub>

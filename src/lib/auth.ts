@@ -16,6 +16,8 @@ export type Viewer = {
   patientId: string | null;
   aal: "aal1" | "aal2" | null;
   hasMfa: boolean;
+  /** Staff signing in with admin-issued credentials must set their own password first. */
+  mustChangePassword: boolean;
 };
 
 export const STAFF_ROLES: Role[] = ["provider", "supervisor", "admin", "content_reviewer", "super_admin"];
@@ -42,7 +44,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data: profile } = await supabase.from("profiles").select("id, role, full_name, email, status").eq("id", user.id).maybeSingle();
+  const { data: profile } = await supabase.from("profiles").select("id, role, full_name, email, status, must_change_password").eq("id", user.id).maybeSingle();
   if (!profile || profile.status !== "active") return null;
   let title: string | null = null;
   let specialty: string | null = null;
@@ -73,17 +75,22 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     patientId,
     aal,
     hasMfa,
+    mustChangePassword: profile.role !== "patient" && !!profile.must_change_password,
   };
 });
 
 /** Server-side gate for a route group. UI hiding is never the security boundary — RLS is. */
-export async function requireRole(roles: Role[], area: "patient" | "staff" = "staff", opts: { allowMfaEnrollment?: boolean } = {}): Promise<Viewer> {
+export async function requireRole(roles: Role[], area: "patient" | "staff" = "staff", opts: { allowCredentialSetup?: boolean } = {}): Promise<Viewer> {
   const viewer = await getViewer();
   if (!viewer) redirect(area === "patient" ? "/login/patient" : "/login/staff");
   if (viewer.role !== "patient") {
     if (viewer.hasMfa && viewer.aal !== "aal2") redirect("/login/mfa");
-    // Organisation policy (system_settings.staff_mfa_required): staff without a factor must enrol first.
-    if (!viewer.hasMfa && !opts.allowMfaEnrollment && (await staffMfaRequired())) redirect("/account/security?required=1");
+    if (!opts.allowCredentialSetup) {
+      // Admin-issued (or admin-reset) passwords are replaced before any data is reachable.
+      if (viewer.mustChangePassword) redirect("/account/password?first=1");
+      // Organisation policy (system_settings.staff_mfa_required): staff without a factor must enrol first.
+      if (!viewer.hasMfa && (await staffMfaRequired())) redirect("/account/security?required=1");
+    }
   }
   if (!roles.includes(viewer.role)) redirect(`/denied?from=${area}`);
   return viewer;

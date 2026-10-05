@@ -38,8 +38,8 @@ export function StaffManage({ userId, role, profile, specialties, self }: { user
         <Button variant="quiet" icon={<KeyRound size={16} />} onClick={() => setPwOpen(true)}>إعادة تعيين كلمة المرور</Button>
       </div>
       <Dialog open={pwOpen} onClose={() => setPwOpen(false)} title="إعادة تعيين كلمة المرور" size="sm"
-        footer={<><Button variant="ghost" onClick={() => setPwOpen(false)}>إلغاء</Button><Button disabled={pw.length < 10} loading={pending} onClick={() => start(async () => { const res = await resetPassword(userId, pw); done(res, "تم تعيين كلمة المرور"); if (res.ok) setPwOpen(false); })}>تعيين</Button></>}>
-        <Field label="كلمة المرور الجديدة (١٠ أحرف على الأقل)" htmlFor="np"><Input id="np" dir="ltr" value={pw} onChange={(e) => setPw(e.target.value)} className="font-mono" /></Field>
+        footer={<><Button variant="ghost" onClick={() => setPwOpen(false)}>إلغاء</Button><Button disabled={pw.length < 10 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)} loading={pending} onClick={() => start(async () => { const res = await resetPassword(userId, pw); done(res, "تم تعيين كلمة المرور"); if (res.ok) setPwOpen(false); })}>تعيين</Button></>}>
+        <Field label="كلمة مرور مؤقتة جديدة" htmlFor="np" hint="١٠ أحرف على الأقل بحروف وأرقام. سيُطلب من الموظف تغييرها عند دخوله التالي."><Input id="np" dir="ltr" value={pw} onChange={(e) => setPw(e.target.value)} className="font-mono" /></Field>
       </Dialog>
     </div>
   );
