@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BellRing, Clock, KeyRound, ShieldCheck, Smartphone, Stethoscope } from "lucide-react";
+import { BellRing, Clock, KeyRound, ShieldCheck, Stethoscope } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/stat";
@@ -44,10 +44,6 @@ export default async function Settings() {
     <div className="mx-auto max-w-5xl">
       <PageHeader eyebrow="الحوكمة" title="إعدادات النظام" description="قيم تشغيلية تؤثر في كل المستخدمين. كل تعديل يُسجَّل في سجل التدقيق مع القيمة السابقة." />
 
-      {bool("demo_mode") && (
-        <Notice tone="warning" title="وضع العرض مفعّل" className="mb-6">رمز التحقق يظهر على شاشة الدخول بدل إرساله برسالة نصية. أوقفه قبل الإطلاق وبعد ربط مزوّد الرسائل.</Notice>
-      )}
-
       <div className="grid grid-cols-1 gap-6">
         <Card className="p-6">
           <CardHeader title="الأمان والدخول" />
@@ -59,12 +55,10 @@ export default async function Settings() {
             <Item icon={Clock} k="session_timeout_minutes" title="مهلة الخمول للموظفين">
               <SettingNumber settingKey="session_timeout_minutes" value={num("session_timeout_minutes", 30)} min={5} max={240} unit="دقيقة" label="مهلة الخمول" />
             </Item>
-            <Item icon={Smartphone} k="demo_mode" title="وضع العرض">
-              <SettingToggle settingKey="demo_mode" value={bool("demo_mode")} label="وضع العرض"
-                confirmOn="سيظهر رمز التحقق على الشاشة لأي شخص يعرف رقم الوصول. استخدمه للعرض والتجربة فقط." confirmOff="لن يظهر رمز التحقق على الشاشة. تأكد من ربط مزوّد الرسائل النصية أولًا." />
-            </Item>
           </ul>
         </Card>
+
+        <SmsHealth />
 
         <Card className="p-6">
           <CardHeader title="قواعد تنبيهات المتابعة" description="تحدد متى يظهر المراجع في قائمة «يحتاج انتباهك» لدى مقدم الرعاية." />
@@ -93,10 +87,10 @@ export default async function Settings() {
         </Card>
 
         <Card tone="soft" className="p-6">
-          <CardHeader title="قنوات الإشعار" description="القنوات الخارجية مؤجلة للمرحلة الثانية وفق وثيقة المتطلبات." />
+          <CardHeader title="قنوات الإشعار" description="رموز دخول المراجعين تُرسل برسائل SMS. التذكيرات الخارجية مؤجلة للمرحلة الثانية." />
           <div className="flex flex-wrap gap-2">
             <Badge tone="sage" dot>داخل المنصة — مفعّلة</Badge>
-            <Badge tone="muted">SMS — المرحلة الثانية</Badge>
+            <Badge tone="sage" dot>SMS — رموز الدخول مفعّلة</Badge>
             <Badge tone="muted">البريد — المرحلة الثانية</Badge>
             <Badge tone="muted">Push — المرحلة الثانية</Badge>
           </div>
@@ -104,5 +98,47 @@ export default async function Settings() {
         </Card>
       </div>
     </div>
+  );
+}
+
+const SMS_ERROR: Record<string, string> = {
+  sms_send_failed: "رفض مزوّد الرسائل الإرسال. إن كان حساب Twilio تجريبيًا فهو يرسل للأرقام الموثّقة فقط — أكمل ملف الامتثال في Twilio.",
+  otp_disabled: "رقم الجوال غير مربوط بحساب دخول المراجع.",
+  over_sms_send_rate_limit: "تجاوز حد الإرسال في Supabase — ارفعه من Authentication › Rate Limits.",
+  gateway_not_configured: "اتصال قاعدة البيانات بخدمة الدخول غير مُعد.",
+  network: "تعذّر الوصول إلى خدمة الدخول.",
+  auth_phone_mismatch: "رقم الجوال مستخدم في حساب آخر — صحّحه من ملف المراجع.",
+};
+
+async function SmsHealth() {
+  const supabase = await createClient();
+  const since = new Date(Date.now() - 864e5).toISOString();
+  const [{ data: day }, { data: lastFail }] = await Promise.all([
+    supabase.from("sms_deliveries").select("event").gte("created_at", since),
+    supabase.from("sms_deliveries").select("event, error_code, http_status, created_at").in("event", ["failed", "rate_limited", "phone_conflict", "no_phone"]).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+  ]);
+  const { data: last } = await supabase.from("sms_deliveries").select("event, created_at").in("event", ["sent", "failed", "rate_limited"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  const count = (e: string) => (day ?? []).filter((d) => d.event === e).length;
+  const healthy = !last || last.event === "sent";
+  const stats: [string, number][] = [["أُرسلت", count("sent")], ["دخول ناجح", count("verified")], ["رموز مرفوضة", count("rejected")], ["تعذّر الإرسال", count("failed") + count("rate_limited")]];
+  return (
+    <Card className="p-6">
+      <CardHeader title="رموز دخول المراجعين (SMS)" description="يدخل المراجع برقم هويته، ويصله رمز التحقق عبر Twilio Verify من خلال Supabase Auth."
+        action={!last ? <Badge tone="muted">لم يُرسل بعد</Badge> : healthy ? <Badge tone="success" dot>يعمل</Badge> : <Badge tone="danger" dot>يحتاج انتباهًا</Badge>} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {stats.map(([l, n]) => (
+          <div key={l} className="rounded-[14px] bg-surface-soft p-4 ring-1 ring-line-soft">
+            <div className="font-display text-2xl tabular-nums text-ink">{n}</div>
+            <div className="mt-0.5 text-xs text-text-2">{l} · آخر ٢٤ ساعة</div>
+          </div>
+        ))}
+      </div>
+      {lastFail && (
+        <Notice tone={healthy ? "neutral" : "warning"} className="mt-4" title={`آخر تعذّر · ${fDateTime(lastFail.created_at)}`}>
+          {SMS_ERROR[lastFail.error_code ?? ""] ?? SMS_ERROR[lastFail.event === "no_phone" ? "otp_disabled" : ""] ?? `رمز الخطأ: ${lastFail.error_code ?? lastFail.http_status ?? "غير معروف"}`}
+        </Notice>
+      )}
+      <p className="mt-4 text-xs leading-relaxed text-text-2">لا يظهر رمز التحقق على الشاشة أبدًا. لا تُرسل رسائل لبيانات العيّنة. يُسمح برمز واحد كل دقيقة لكل مراجع، و٥ طلبات كل ١٥ دقيقة لكل رقم هوية.</p>
+    </Card>
   );
 }

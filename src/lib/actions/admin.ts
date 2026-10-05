@@ -234,3 +234,9 @@ export async function saveSpecialty(code: string, patch: { name?: string; name_e
   revalidatePath("/admin/settings");
   return { ok: true, message: "تم حفظ التخصص." };
 }
+export async function updatePatientPhone(patientId: string, phone: string): Promise<ActionResult> {
+  const r = await rpc("admin_update_patient_phone", { p_patient: patientId, p_phone: phone });
+  if (!r.ok) return r;
+  revalidatePath(`/admin/patients/${patientId}`);
+  return { ok: true, message: "تم تحديث رقم الجوال. ستصل رموز الدخول إلى الرقم الجديد." };
+}

@@ -14,11 +14,7 @@ export default async function PatientLoginPage({ searchParams }: { searchParams:
       <h1 className="font-display text-[2.125rem] font-semibold leading-tight text-ink">أهلًا بعودتك</h1>
       <p className="mb-8 mt-2 text-text-2">أدخل رقم هويتك الوطنية أو الإقامة، وسنرسل رمز تحقق إلى جوالك المسجّل.</p>
       <PatientLogin next={next} />
-      <details className="mt-6 rounded-[14px] border border-line bg-surface-soft/60 px-4 py-3 text-sm text-text-2">
-        <summary className="cursor-pointer font-medium text-ink">حساب العرض التجريبي</summary>
-        <p className="mt-2">رقم الهوية <span dir="ltr" className="font-mono text-ink">1023456789</span> — يظهر رمز التحقق على الشاشة ما دام وضع العرض مفعّلًا.</p>
-      </details>
-      <EmergencyNotice compact className="mt-6" />
+      <EmergencyNotice compact className="mt-8" />
       <p className="mt-6 text-sm text-text-2">لست مراجعًا؟ <Link href="/login/staff" className="font-medium text-slate-600 hover:underline">دخول الموظفين</Link></p>
     </AuthShell>
   );

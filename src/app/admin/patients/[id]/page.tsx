@@ -12,6 +12,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/states";
 import { AccountToggle, CareTeamEditor, NewEpisodeDialog, ScheduleDialog } from "@/components/admin/dialogs";
+import { PhoneEditor } from "@/components/admin/phone-editor";
 import { APPOINTMENT_STATUS, EPISODE_STATUS, USER_STATUS } from "@/lib/status";
 import { age, fDate, fDateTime } from "@/lib/format";
 
@@ -23,11 +24,12 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
   const supabase = await createClient();
   const { data: p } = await supabase.from("patients").select("*, profile:profiles!patients_user_id_fkey(status, last_login_at)").eq("id", id).maybeSingle();
   if (!p) notFound();
-  const [{ data: episodes }, { data: appts }, { data: specs }, { data: cl }] = await Promise.all([
+  const [{ data: episodes }, { data: appts }, { data: specs }, { data: cl }, { data: sms }] = await Promise.all([
     supabase.from("episodes").select("id, code, title, status, start_date, end_date, specialty_code, specialty:specialties(name), care_team:care_team_members(id, role, provider_id, ended_at, provider:profiles!care_team_members_provider_id_fkey(full_name))").eq("patient_id", id).order("start_date", { ascending: false }),
     supabase.from("appointments").select("id, starts_at, status, location, provider:profiles!appointments_provider_id_fkey(full_name)").eq("patient_id", id).order("starts_at", { ascending: false }).limit(12),
     supabase.from("specialties").select("code, name").order("sort"),
     supabase.rpc("provider_caseload"),
+    supabase.from("sms_deliveries").select("id, event, error_code, created_at").eq("patient_id", id).order("created_at", { ascending: false }).limit(6),
   ]);
   const providers = ((cl ?? []) as { provider_id: string; full_name: string; specialty_code: string | null; active_episodes: number; capacity: number; status: string }[]).filter((c) => c.status === "active").map((c) => ({ id: c.provider_id, full_name: c.full_name, specialty_code: c.specialty_code, active: c.active_episodes, capacity: c.capacity }));
   const prof = p.profile as unknown as { status: string; last_login_at: string | null } | null;
@@ -44,6 +46,7 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            {p.is_sample && <Badge tone="clay">بيانات عيّنة</Badge>}
             {prof && <StatusBadge map={USER_STATUS} value={prof.status} />}
             {p.user_id && prof && <AccountToggle userId={p.user_id} status={prof.status} path={`/admin/patients/${id}`} />}
           </div>
@@ -52,7 +55,7 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
           <DescriptionList columns={3} items={[
             { label: "العمر", value: age(p.date_of_birth) ? `${age(p.date_of_birth)} سنة` : null },
             { label: "الجنس", value: p.sex === "male" ? "ذكر" : p.sex === "female" ? "أنثى" : null },
-            { label: "الجوال", value: <span dir="ltr">{p.phone}</span> },
+            { label: "الجوال (لرموز الدخول)", value: <PhoneEditor patientId={id} phone={p.phone} /> },
             { label: "الهوية", value: p.national_id ? <span dir="ltr">••••••{p.national_id.slice(-4)}</span> : null },
             { label: "الجوال موثّق", value: p.phone_verified ? "نعم" : "لا" },
             { label: "آخر دخول", value: prof?.last_login_at ? fDateTime(prof.last_login_at) : "لم يسجل الدخول" },
@@ -77,6 +80,7 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
             );
           })}
         </section>
+        <div className="space-y-6">
         <Card className="h-fit">
           <CardHeader title="المواعيد" action={<ScheduleDialog episodes={(episodes ?? []).map((e) => ({ id: e.id, title: e.title, patient_id: id, specialty_code: e.specialty_code }))} providers={providers} defaults={{ patient_id: id }} />} />
           {(appts ?? []).length === 0 ? <p className="text-sm text-text-2">لا توجد مواعيد.</p> : (
@@ -88,7 +92,33 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
             ))}</ul>
           )}
         </Card>
+        <Card className="h-fit">
+          <CardHeader title="رسائل رمز الدخول" description="آخر محاولات الدخول عبر SMS — للإجابة عن «لم يصلني الرمز»." />
+          {p.is_sample ? <p className="text-sm text-text-2">ملف عيّنة: لا تُرسل له رسائل.</p> : (sms ?? []).length === 0 ? <p className="text-sm text-text-2">لم يطلب المراجع رمز دخول بعد.</p> : (
+            <ul className="divide-y divide-line-soft">{(sms ?? []).map((m) => {
+              const e = SMS_EVENT[m.event] ?? { label: m.event, tone: "muted" as const };
+              return (
+                <li key={m.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                  <div><div className="text-ink">{e.label}</div><div className="text-xs text-text-2">{fDateTime(m.created_at)}{m.error_code ? <> · <span dir="ltr" className="font-mono">{m.error_code}</span></> : null}</div></div>
+                  <Badge size="sm" tone={e.tone}>{e.short}</Badge>
+                </li>
+              );
+            })}</ul>
+          )}
+        </Card>
+        </div>
       </div>
     </div>
   );
 }
+
+const SMS_EVENT: Record<string, { label: string; short: string; tone: "success" | "sage" | "warning" | "danger" | "muted" }> = {
+  sent: { label: "أُرسل رمز التحقق", short: "أُرسل", tone: "sage" },
+  verified: { label: "دخل بنجاح", short: "نجح", tone: "success" },
+  rejected: { label: "أدخل رمزًا غير صحيح أو منتهيًا", short: "رُفض", tone: "warning" },
+  suppressed: { label: "طلب رمزًا قبل مرور دقيقة", short: "انتظار", tone: "muted" },
+  failed: { label: "تعذّر الإرسال من مزوّد الرسائل", short: "فشل", tone: "danger" },
+  rate_limited: { label: "تجاوز حد الإرسال", short: "حد", tone: "danger" },
+  no_phone: { label: "لا يوجد رقم جوال صالح", short: "بلا رقم", tone: "danger" },
+  phone_conflict: { label: "الرقم مستخدم في حساب آخر", short: "تعارض", tone: "danger" },
+};

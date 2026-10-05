@@ -24,7 +24,7 @@ export default async function Communications() {
     <div className="mx-auto max-w-7xl">
       <PageHeader title="مركز التواصل" description="الإعلانات، قوالب الرسائل، وقنوات الإشعار." />
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
-        {[[Bell, "داخل المنصة", "مفعّلة", "sage"], [Smartphone, "رسائل SMS", "المرحلة الثانية", "muted"], [Mail, "البريد الإلكتروني", "المرحلة الثانية", "muted"], [MessageSquare, "إشعارات Push", "المرحلة الثانية", "muted"]].map(([I, l, s, t]) => {
+        {[[Bell, "داخل المنصة", "مفعّلة", "sage"], [Smartphone, "رسائل SMS", "رموز الدخول مفعّلة", "sage"], [Mail, "البريد الإلكتروني", "المرحلة الثانية", "muted"], [MessageSquare, "إشعارات Push", "المرحلة الثانية", "muted"]].map(([I, l, s, t]) => {
           const Icon = I as typeof Bell;
           return <Card key={l as string} className="p-5"><Icon size={20} className="text-slate-600" /><div className="mt-3 font-medium text-ink">{l as string}</div><Badge size="sm" tone={t as "sage" | "muted"} className="mt-2">{s as string}</Badge></Card>;
         })}

@@ -19,8 +19,16 @@ Deep Slate Blue `#44556B` (primary) · Midnight Ink `#29323D` (hover/depth) · S
 Tokens live in `src/app/globals.css`; components in `src/components/ui`. No teal, cyan, neon, harsh gradients or glassmorphism.
 
 ## Sign-in
-- **Patients** enter their **national ID / Iqama number** (10 digits; Arabic or Latin digits both work), then a one-time code sent to the phone registered with the department. The national ID is required and unique at registration.
+- **Patients** enter their **national ID / Iqama number** (10 digits; Arabic or Latin digits both work) and receive a 6-digit code by **SMS** on the mobile registered with the department. The national ID and the mobile are required and unique per patient. The code is never shown on screen.
 - **Staff** accounts exist only when an admin creates them in **فريق التأهيل → موظف جديد** with the employee's work email and a temporary password. There is no self sign-up. At first sign-in, and after any admin reset, the employee must choose their own password before any patient data is reachable.
+
+## Patient SMS codes (Supabase Auth · Twilio Verify)
+- Supabase **Authentication → Sign In / Providers → Phone** is enabled with **Twilio Verify**.
+- The patient types only their ID. The database looks up the registered mobile and asks Supabase Auth to text the code, then verifies it and returns the session. The phone number never reaches the browser, and the answer is identical for registered and unregistered IDs.
+- Limits: one code per minute per patient, 5 requests and 10 verification attempts per ID every 15 minutes, on top of Supabase's own limits.
+- Every send and verification is logged in `sms_deliveries`. Staff see it on the patient's admin page; delivery health shows in **الإعدادات**.
+- Sample patients (`is_sample`) are never texted.
+- One-time setup per project: `private.auth_gateway` holds the project URL and publishable key (see migration `20261006000001_sms_login.sql`).
 
 ## Hospital identity
 The official logo of **مستشفى الحديثة العام — Alhadithah General Hospital (تجمع الجوف الصحي)** is managed in **إدارة الموقع → هوية المستشفى** in three versions: the horizontal lockup (headers, sign-in, staff sidebar), the emblem (phones and the patient app) and the full vertical logo (site footer). Transparent masters are kept in `public/brand/`. Replacements accept SVG (preferred), PNG or WEBP up to 1 MB. SVG files are checked and rejected if they contain scripts or external references, and the logo is served from the site's own domain.
@@ -37,17 +45,6 @@ The official logo of **مستشفى الحديثة العام — Alhadithah Gen
 - **Staff policy is enforced server-side**: idle timeout and the optional MFA requirement (`Settings`).
 
 Details: [`supabase/README.md`](supabase/README.md).
-
-## Demo access
-| Role | Login | Secret |
-|---|---|---|
-| Department admin | admin@masar.health | `Masar@2026!` |
-| Supervisor | supervisor@masar.health | `Masar@2026!` |
-| Physiotherapist | noura@masar.health | `Masar@2026!` |
-| Content reviewer | reviewer@masar.health | `Masar@2026!` |
-| Patient (knee rehab) | National ID `1023456789` | One-time code shown on screen while `demo_mode` is on |
-
-More accounts and patients are listed in `supabase/README.md`.
 
 ## Local development
 ```bash
@@ -77,11 +74,12 @@ supabase/seed/         demo dataset (01 → 05, after migrations)
 4. In Supabase **Authentication → URL Configuration**, set the Site URL to the production URL.
 
 ## Before going live
-- Disable public sign-ups in Supabase **Authentication → Providers → Email**. Accounts are created only by admins.
+- **Turn off "Allow new users to sign up"** in Supabase **Authentication → Sign In / Providers**. Accounts are created only by admins, and with sign-ups on, anyone can make Twilio send texts at your cost.
 - Enable **leaked password protection** in Supabase **Authentication → Password security**.
-- Connect an SMS gateway for patient one-time codes, then turn **وضع العرض** off in `/admin/settings`.
+- In Twilio, complete the **Primary Customer Profile** (Trust Hub) and upgrade from trial. A trial account only texts verified numbers (error 21608).
+- In Supabase **Authentication → Rate Limits**, raise the SMS limit to match clinic volume.
 - Turn on **إلزام الموظفين بالتحقق الثنائي** in `/admin/settings` once staff have enrolled.
-- Replace the seeded demo staff passwords, or disable those accounts.
+- Change the passwords of the seeded staff accounts (published earlier in this repository's history), or disable those accounts.
 - Upload real exercise videos in Exercise Studio. The bucket is private and served via short-lived signed URLs.
 
 ---

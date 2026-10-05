@@ -28,6 +28,7 @@ export function PatientWizard({ specialties, providers }: { specialties: { code:
   function validate(): string | null {
     if (step === 0 && !/^[12]\d{9}$/.test(v.national_id ?? "")) return "رقم الهوية أو الإقامة مطلوب: ١٠ أرقام يبدأ بـ 1 أو 2 — وهو ما يدخل به المراجع.";
     if (step === 1 && (v.full_name ?? "").trim().length < 3) return "اكتب الاسم الكامل.";
+    if (step === 1 && v.date_of_birth && (v.date_of_birth > new Date().toISOString().slice(0, 10) || v.date_of_birth < "1900-01-01")) return "تاريخ الميلاد غير صحيح.";
     if (step === 2 && !/^(05\d{8})$/.test((v.phone ?? "").replace(/\D/g, ""))) return "رقم الجوال يجب أن يكون بالصيغة 05XXXXXXXX.";
     if (step === 3 && !v.specialty_code) return "اختر الخدمة / التخصص.";
     return null;
@@ -96,13 +97,13 @@ export function PatientWizard({ specialties, providers }: { specialties: { code:
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="الاسم الكامل" htmlFor="fn" required><Input id="fn" value={v.full_name ?? ""} onChange={(e) => { set("full_name", e.target.value); setDups(null); }} /></Field>
             <Field label="الاسم بالإنجليزية" htmlFor="fne"><Input id="fne" dir="ltr" value={v.full_name_en ?? ""} onChange={(e) => set("full_name_en", e.target.value)} /></Field>
-            <Field label="تاريخ الميلاد" htmlFor="dob"><Input id="dob" type="date" value={v.date_of_birth ?? ""} onChange={(e) => { set("date_of_birth", e.target.value); setDups(null); }} /></Field>
+            <Field label="تاريخ الميلاد" htmlFor="dob"><Input id="dob" type="date" max={new Date().toISOString().slice(0, 10)} min="1900-01-01" value={v.date_of_birth ?? ""} onChange={(e) => { set("date_of_birth", e.target.value); setDups(null); }} /></Field>
             <Field label="الجنس" htmlFor="sex" hint="عند الحاجة السريرية أو التشغيلية فقط"><Select id="sex" value={v.sex} onChange={(e) => set("sex", e.target.value)}><option value="">غير محدد</option><option value="male">ذكر</option><option value="female">أنثى</option></Select></Field>
           </div>
         )}
         {step === 2 && (
           <>
-            <Field label="رقم الجوال" htmlFor="ph" required hint="يُرسل إليه رمز التحقق عند الدخول."><Input id="ph" dir="ltr" inputMode="tel" placeholder="05XXXXXXXX" value={v.phone ?? ""} onChange={(e) => { set("phone", e.target.value); setDups(null); }} className="max-w-xs text-end" /></Field>
+            <Field label="رقم الجوال" htmlFor="ph" required hint="جوال المراجع نفسه — إليه يُرسل رمز الدخول برسالة نصية، ولا يُستخدم لمراجع آخر."><Input id="ph" dir="ltr" inputMode="tel" maxLength={10} placeholder="05XXXXXXXX" value={v.phone ?? ""} onChange={(e) => { set("phone", digitsOnly(e.target.value).slice(0, 10)); setDups(null); }} className="max-w-xs text-end font-mono" /></Field>
             {dups && dups.length > 0 && (
               <div className="rounded-[18px] border border-warning/30 bg-warning-bg p-4">
                 <div className="font-semibold text-warning-fg">سجلات محتملة لنفس المراجع</div>

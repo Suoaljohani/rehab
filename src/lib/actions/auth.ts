@@ -6,30 +6,31 @@ import { humanError, type ActionResult } from "@/lib/errors";
 import { homeFor, type Role } from "@/lib/auth";
 import { digitsOnly, NATIONAL_ID_RE } from "@/lib/identity";
 
-export async function requestPatientCode(nationalId: string): Promise<ActionResult<{ maskedPhone: string | null; demoCode: string | null }>> {
+export async function requestPatientCode(nationalId: string): Promise<ActionResult<{ cooldown: number }>> {
   const id = digitsOnly(nationalId);
   if (!NATIONAL_ID_RE.test(id)) return { ok: false, error: "رقم الهوية أو الإقامة يتكون من ١٠ أرقام ويبدأ بـ 1 أو 2." };
   const supabase = await createClient();
+  // The database resolves the registered mobile and asks Supabase Auth (Twilio Verify) to text the code.
+  // The answer is identical for registered and unregistered IDs.
   const { data, error } = await supabase.rpc("request_patient_otp", { p_access_id: id });
   if (error) return { ok: false, error: humanError(error) };
   if (!data?.ok) return { ok: false, error: humanError(data?.error) };
-  return { ok: true, data: { maskedPhone: data.masked_phone ?? null, demoCode: data.demo_code ?? null } };
+  return { ok: true, data: { cooldown: Number(data.cooldown ?? 60) } };
 }
 
 export async function verifyPatientCode(nationalId: string, code: string, next?: string): Promise<ActionResult> {
   const id = digitsOnly(nationalId);
+  const otp = digitsOnly(code);
   if (!NATIONAL_ID_RE.test(id)) return { ok: false, error: "رقم الهوية أو الإقامة غير صحيح." };
+  if (otp.length < 4) return { ok: false, error: "أدخل الرمز المكوّن من ٦ أرقام." };
   const supabase = await createClient();
-  // the RPC parameter keeps its historical name; it now resolves the national ID / Iqama
-  const { data, error } = await supabase.rpc("verify_patient_otp", { p_access_id: id, p_code: digitsOnly(code) });
+  const { data, error } = await supabase.rpc("verify_patient_otp", { p_access_id: id, p_code: otp });
   if (error) return { ok: false, error: humanError(error) };
   if (!data?.ok) return { ok: false, error: humanError(data?.error) };
-  const { error: signInError } = await supabase.auth.signInWithPassword({ email: data.email, password: data.secret });
-  if (signInError) return { ok: false, error: "تعذّر إنشاء الجلسة. حاول مجددًا." };
-  // the one-time secret is destroyed immediately after the session exists
-  await supabase.rpc("rotate_my_patient_secret");
+  const { error: sessionError } = await supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
+  if (sessionError) return { ok: false, error: "تعذّر إنشاء الجلسة. حاول مجددًا." };
   const { data: rec } = await supabase.rpc("record_login", { p_success: true, p_channel: "patient" });
-  if (!rec?.ok) {
+  if (!rec?.ok || rec.role !== "patient") {
     await supabase.auth.signOut();
     return { ok: false, error: rec?.error === "disabled" ? "هذا الحساب موقوف. تواصل مع القسم." : "تعذّر تسجيل الدخول." };
   }

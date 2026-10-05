@@ -12,16 +12,6 @@ Migrations in `migrations/` are applied in filename order and are the source of 
 - **Nothing clinical is deleted.** Program drafts are discarded (kept), exercises are archived,
   notes keep revisions, audit events are append-only.
 
-## Demo accounts (seed)
-| Role | Login | Secret |
-|---|---|---|
-| Department admin | admin@masar.health | Masar@2026! |
-| Supervisor | supervisor@masar.health | Masar@2026! |
-| Provider (PT) | noura@masar.health | Masar@2026! |
-| Provider (PT) | faisal@masar.health | Masar@2026! |
-| Provider (OT) | huda@masar.health | Masar@2026! |
-| Provider (SLP) | majed@masar.health | Masar@2026! |
-| Content reviewer | reviewer@masar.health | Masar@2026! |
-| Patient | National ID `1023456789` | one-time code (shown on screen while `demo_mode` is on) |
-
-Turn `demo_mode` off in **Settings** before production and connect an SMS gateway.
+## Seeded accounts
+The seed creates example staff accounts and sample patients (`patients.is_sample = true`, never texted).
+Change every seeded staff password, or disable the accounts, before real use.

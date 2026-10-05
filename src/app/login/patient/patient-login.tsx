@@ -1,42 +1,59 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
-import { ArrowRight, KeyRound, ShieldCheck } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { ArrowRight, KeyRound, LogIn, MessageSquareText, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { Notice } from "@/components/ui/notice";
 import { requestPatientCode, verifyPatientCode } from "@/lib/actions/auth";
 import { digitsOnly, maskNationalId } from "@/lib/identity";
 
+const CODE_LENGTH = 6;
+
 export function PatientLogin({ next }: { next?: string }) {
   const [step, setStep] = useState<"id" | "code">("id");
   const [nationalId, setNationalId] = useState("");
   const [code, setCode] = useState("");
-  const [masked, setMasked] = useState<string | null>(null);
-  const [demo, setDemo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [wait, setWait] = useState(0);
   const [pending, start] = useTransition();
   const codeRef = useRef<HTMLInputElement>(null);
+  const submitted = useRef<string | null>(null);
+
+  // resend countdown
+  useEffect(() => {
+    if (wait <= 0) return;
+    const t = setTimeout(() => setWait((w) => w - 1), 1000);
+    return () => clearTimeout(t);
+  }, [wait]);
 
   function send(e?: React.FormEvent) {
     e?.preventDefault();
+    if (pending || nationalId.length !== 10) return;
     setError(null);
     start(async () => {
       const res = await requestPatientCode(nationalId);
       if (!res.ok) return setError(res.error);
-      setMasked(res.data?.maskedPhone ?? null);
-      setDemo(res.data?.demoCode ?? null);
+      setWait(res.data?.cooldown ?? 60);
+      setCode("");
+      submitted.current = null;
       setStep("code");
-      setTimeout(() => codeRef.current?.focus(), 50);
+      setTimeout(() => codeRef.current?.focus(), 60);
     });
   }
 
-  function verify(e: React.FormEvent) {
-    e.preventDefault();
+  function verify(value = code) {
+    if (pending || value.length !== CODE_LENGTH || submitted.current === value) return;
+    submitted.current = value;
     setError(null);
     start(async () => {
-      const res = await verifyPatientCode(nationalId, code, next);
-      if (res && !res.ok) setError(res.error);
+      const res = await verifyPatientCode(nationalId, value, next);
+      if (res && !res.ok) {
+        setError(res.error);
+        setCode("");
+        submitted.current = null;
+        codeRef.current?.focus();
+      }
     });
   }
 
@@ -45,32 +62,44 @@ export function PatientLogin({ next }: { next?: string }) {
       <form onSubmit={send} className="space-y-5" noValidate>
         <Field label="رقم الهوية الوطنية / الإقامة" htmlFor="nid" hint="الرقم المسجّل لدى قسم التأهيل الطبي — ١٠ أرقام." error={error}>
           <Input id="nid" name="national_id" dir="ltr" autoComplete="username" inputMode="numeric" maxLength={10} placeholder="1XXXXXXXXX" value={nationalId}
-            onChange={(e) => setNationalId(digitsOnly(e.target.value).slice(0, 10))} className="h-14 text-center font-mono text-xl tracking-[0.25em]" aria-invalid={!!error} required />
+            onChange={(e) => { setNationalId(digitsOnly(e.target.value).slice(0, 10)); setError(null); }}
+            className="h-14 text-center font-mono text-xl tracking-[0.25em]" aria-invalid={!!error} required />
         </Field>
-        <Button type="submit" size="lg" block loading={pending} disabled={nationalId.length !== 10} icon={<KeyRound size={18} />}>إرسال رمز التحقق</Button>
+        <Button type="submit" size="lg" block loading={pending} disabled={nationalId.length !== 10} icon={<MessageSquareText size={18} />}>إرسال رمز التحقق</Button>
+        <p className="text-center text-xs leading-relaxed text-text-2">سيصلك رمز من ٦ أرقام برسالة نصية على جوالك المسجّل لدى القسم.</p>
       </form>
     );
   }
 
   return (
-    <form onSubmit={verify} className="space-y-5" noValidate>
+    <form onSubmit={(e) => { e.preventDefault(); verify(); }} className="space-y-5" noValidate>
       <button type="button" onClick={() => { setStep("id"); setCode(""); setError(null); }} className="inline-flex items-center gap-1.5 text-sm text-text-2 hover:text-ink">
         <ArrowRight size={16} /> تغيير رقم الهوية <span dir="ltr" className="font-mono text-xs text-text-3">{maskNationalId(nationalId)}</span>
       </button>
-      <Notice tone="sage" icon={<ShieldCheck size={18} />}>
-        {masked ? <>أرسلنا رمزًا من ٦ أرقام إلى جوالك المنتهي بـ <b dir="ltr">{masked}</b>.</> : "إذا كان رقم الهوية مسجّلًا لدينا فسيصلك رمز التحقق على جوالك المسجّل."}
+      <Notice tone="sage" icon={<KeyRound size={18} />} title="تحقق من رسائلك">
+        إذا كان رقم الهوية مسجّلًا لدينا فستصلك خلال لحظات رسالة فيها رمز التحقق على جوالك المسجّل. الرمز صالح لمدة قصيرة ولا تشاركه مع أحد.
       </Notice>
-      {demo && (
-        <div className="rounded-[14px] border border-dashed border-clay-300 bg-clay-50 px-4 py-3 text-sm text-clay-700">
-          وضع العرض مفعّل — رمز التحقق: <b className="font-mono text-base tracking-widest" dir="ltr">{demo}</b>
-        </div>
-      )}
       <Field label="رمز التحقق" htmlFor="code" error={error}>
-        <Input ref={codeRef} id="code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="••••••" value={code}
-          onChange={(e) => setCode(digitsOnly(e.target.value).slice(0, 6))} className="h-14 text-center font-mono text-2xl tracking-[0.5em]" aria-invalid={!!error} required />
+        <Input ref={codeRef} id="code" name="one-time-code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={CODE_LENGTH} placeholder="••••••" value={code}
+          onChange={(e) => {
+            const v = digitsOnly(e.target.value).slice(0, CODE_LENGTH);
+            setCode(v);
+            setError(null);
+            if (v.length === CODE_LENGTH) verify(v);
+          }}
+          className="h-14 text-center font-mono text-2xl tracking-[0.5em]" aria-invalid={!!error} aria-describedby="code-help" required />
       </Field>
-      <Button type="submit" size="lg" block loading={pending} disabled={code.length !== 6}>دخول</Button>
-      <button type="button" onClick={() => send()} disabled={pending} className="block w-full text-center text-sm text-slate-600 hover:underline">إعادة إرسال الرمز</button>
+      <Button type="submit" size="lg" block loading={pending} disabled={code.length !== CODE_LENGTH} icon={<LogIn size={18} />}>دخول</Button>
+      <div id="code-help" className="space-y-2 text-center text-sm">
+        {wait > 0 ? (
+          <p className="text-text-2">يمكنك طلب رمز جديد بعد <span className="font-mono tabular-nums text-ink">{wait}</span> ثانية</p>
+        ) : (
+          <button type="button" onClick={() => send()} disabled={pending} className="inline-flex items-center gap-1.5 font-medium text-slate-600 hover:underline disabled:opacity-50">
+            <RotateCw size={14} /> إعادة إرسال الرمز
+          </button>
+        )}
+        <p className="text-xs text-text-3">لم تصلك الرسالة؟ تأكد أن رقم جوالك مسجّل لدى القسم، أو تواصل مع الاستقبال لتحديثه.</p>
+      </div>
     </form>
   );
 }
