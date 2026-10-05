@@ -23,28 +23,29 @@ export function SiteHeader({ brand }: { brand?: BrandProps }) {
     <header className="sticky top-0 z-40 border-b border-line/60 bg-page/85 backdrop-blur-md">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-8">
         <Link href="/" aria-label={`${brand?.hospitalName ? brand.hospitalName + " — " : ""}مَسار — الصفحة الرئيسية`} className="shrink-0">
-          <span className="sm:hidden"><BrandLockup brand={brand} compact logoClassName="h-8 max-w-[7rem]" /></span>
-          <span className="hidden sm:block"><BrandLockup brand={brand} /></span>
+          <span className="sm:hidden"><BrandLockup brand={brand} compact logoClassName="h-10" /></span>
+          <span className="hidden sm:block 2xl:hidden"><BrandLockup brand={brand} shortPlatform logoClassName="h-10" /></span>
+          <span className="hidden 2xl:block"><BrandLockup brand={brand} logoClassName="h-11" /></span>
         </Link>
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="التنقل الرئيسي">
+        <nav className="hidden items-center gap-0.5 xl:flex" aria-label="التنقل الرئيسي">
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} aria-current={path === n.href ? "page" : undefined}
-              className={cn("rounded-full px-3.5 py-2 text-[0.9375rem] transition", path === n.href ? "bg-surface text-ink shadow-[var(--shadow-xs)]" : "text-text-2 hover:text-ink")}>
+              className={cn("whitespace-nowrap rounded-full px-3 py-2 text-[0.9375rem] transition", path === n.href ? "bg-surface text-ink shadow-[var(--shadow-xs)]" : "text-text-2 hover:text-ink")}>
               {n.label}
             </Link>
           ))}
         </nav>
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden shrink-0 items-center gap-2 xl:flex">
           <ButtonLink href="/track" variant="ghost" size="sm">متابعة طلب</ButtonLink>
           <ButtonLink href="/login" variant="secondary" size="sm">تسجيل الدخول</ButtonLink>
           <ButtonLink href="/start" size="sm">ابدأ رحلتك</ButtonLink>
         </div>
-        <button className="grid size-11 place-items-center rounded-full text-ink hover:bg-surface lg:hidden" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="القائمة">
+        <button className="grid size-11 place-items-center rounded-full text-ink hover:bg-surface xl:hidden" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="القائمة">
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
       {open && (
-        <div className="border-t border-line/60 bg-page px-4 pb-6 pt-2 lg:hidden">
+        <div className="border-t border-line/60 bg-page px-4 pb-6 pt-2 xl:hidden">
           <nav className="flex flex-col" aria-label="التنقل الرئيسي">
             {NAV.map((n) => (
               <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className="border-b border-line-soft py-3.5 text-[1.0625rem] text-ink">{n.label}</Link>

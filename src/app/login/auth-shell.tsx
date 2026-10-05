@@ -11,7 +11,10 @@ export async function AuthShell({ children, aside }: { children: ReactNode; asid
     <div className="grid grid-cols-1 min-h-dvh lg:grid-cols-[1.05fr_1fr]">
       <main id="main" className="flex flex-col px-5 py-6 sm:px-10">
         <div className="flex items-center justify-between">
-          <Link href="/" aria-label="الصفحة الرئيسية"><BrandLockup brand={brand} compact logoClassName="h-9" /></Link>
+          <Link href="/" aria-label="الصفحة الرئيسية">
+            <span className="sm:hidden"><BrandLockup brand={brand} compact logoClassName="h-10" /></span>
+            <span className="hidden sm:block"><BrandLockup brand={brand} shortPlatform logoClassName="h-10" /></span>
+          </Link>
           <Link href="/" className="text-sm text-text-2 hover:text-ink">العودة للموقع</Link>
         </div>
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-12">{children}</div>

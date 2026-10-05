@@ -39,7 +39,7 @@ export default async function Cms({ searchParams }: { searchParams: Promise<{ ta
       {tab === "identity" && (
         <Card className="p-6">
           <CardHeader title="الشعار الرسمي للمستشفى" description={stamp("brand")} />
-          <IdentityEditor brand={await getBrand()} />
+          <IdentityEditor brand={await getBrand()} stored={{ logo: !!B.brand?.content.logo_url, mark: !!B.brand?.content.logo_mark_url, full: !!B.brand?.content.logo_full_url }} />
         </Card>
       )}
 

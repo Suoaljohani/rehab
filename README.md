@@ -23,7 +23,7 @@ Tokens live in `src/app/globals.css`; components in `src/components/ui`. No teal
 - **Staff** accounts exist only when an admin creates them in **فريق التأهيل → موظف جديد** with the employee's work email and a temporary password. There is no self sign-up. At first sign-in, and after any admin reset, the employee must choose their own password before any patient data is reachable.
 
 ## Hospital identity
-Upload the hospital's official logo in **إدارة الموقع → هوية المستشفى** (SVG preferred, PNG/WEBP accepted, up to 1 MB). It appears beside the مَسار platform mark on the public site, sign-in screens, staff workspace and patient app. SVG files are checked and rejected if they contain scripts or external references, and the logo is served from the site's own domain.
+The official logo of **مستشفى الحديثة العام — Alhadithah General Hospital (تجمع الجوف الصحي)** is managed in **إدارة الموقع → هوية المستشفى** in three versions: the horizontal lockup (headers, sign-in, staff sidebar), the emblem (phones and the patient app) and the full vertical logo (site footer). Transparent masters are kept in `public/brand/`. Replacements accept SVG (preferred), PNG or WEBP up to 1 MB. SVG files are checked and rejected if they contain scripts or external references, and the logo is served from the site's own domain.
 
 ## Stack
 - **Next.js 15** (App Router, RSC, Server Actions) · React 19 · TypeScript · Tailwind CSS v4

@@ -39,8 +39,13 @@ async function saveBrand(patch: Record<string, unknown>) {
   return { ok: true as const };
 }
 
+const KIND_FIELD: Record<string, string> = { logo: "logo_url", mark: "logo_mark_url", full: "logo_full_url" };
+
 export async function uploadHospitalLogo(fd: FormData): Promise<ActionResult<string>> {
   if (!(await requireAdmin())) return { ok: false, error: humanError("forbidden") };
+  const kind = String(fd.get("kind") ?? "logo");
+  const field = KIND_FIELD[kind];
+  if (!field) return { ok: false, error: "نوع الشعار غير معروف." };
   const file = fd.get("logo");
   if (!(file instanceof File) || file.size === 0) return { ok: false, error: "اختر ملف الشعار." };
   const ext = TYPES[file.type] ?? (file.name.toLowerCase().endsWith(".svg") ? "svg" : null);
@@ -57,24 +62,24 @@ export async function uploadHospitalLogo(fd: FormData): Promise<ActionResult<str
   }
 
   const supabase = await createClient();
-  const path = `hospital-logo-${Date.now()}.${ext}`;
+  const path = `hospital-${kind}-${Date.now()}.${ext}`;
   const { error } = await supabase.storage.from("brand").upload(path, body, { contentType: ext === "svg" ? "image/svg+xml" : file.type, cacheControl: "31536000", upsert: false });
   if (error) return { ok: false, error: humanError(error) };
   const { data } = supabase.storage.from("brand").getPublicUrl(path);
-  const saved = await saveBrand({ logo_url: data.publicUrl });
+  const saved = await saveBrand({ [field]: data.publicUrl });
   if (!saved.ok) return saved;
   return { ok: true, data: data.publicUrl, message: "اعتُمد الشعار الرسمي وظهر في كل واجهات المنصة." };
 }
 
-export async function saveHospitalIdentity(patch: { hospital_name: string | null; hospital_name_en: string | null }): Promise<ActionResult> {
+export async function saveHospitalIdentity(patch: { hospital_name: string | null; hospital_name_en: string | null; hospital_cluster: string | null }): Promise<ActionResult> {
   if (!(await requireAdmin())) return { ok: false, error: humanError("forbidden") };
-  const saved = await saveBrand({ hospital_name: patch.hospital_name?.trim() || null, hospital_name_en: patch.hospital_name_en?.trim() || null });
+  const saved = await saveBrand({ hospital_name: patch.hospital_name?.trim() || null, hospital_name_en: patch.hospital_name_en?.trim() || null, hospital_cluster: patch.hospital_cluster?.trim() || null });
   return saved.ok ? { ok: true, message: "تم حفظ اسم المستشفى." } : saved;
 }
 
 /** Hides the logo everywhere; the file itself is kept for the audit trail. */
-export async function removeHospitalLogo(): Promise<ActionResult> {
+export async function removeHospitalLogo(kind: "logo" | "mark" | "full" = "logo"): Promise<ActionResult> {
   if (!(await requireAdmin())) return { ok: false, error: humanError("forbidden") };
-  const saved = await saveBrand({ logo_url: null });
+  const saved = await saveBrand({ [KIND_FIELD[kind] ?? "logo_url"]: null });
   return saved.ok ? { ok: true, message: "أُخفي الشعار. يمكنك رفع شعار جديد في أي وقت." } : saved;
 }

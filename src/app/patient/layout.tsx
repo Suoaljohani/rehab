@@ -21,7 +21,7 @@ export default async function PatientLayout({ children }: { children: React.Reac
       <header className="sticky top-0 z-30 border-b border-line/50 bg-page/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between gap-4 px-4">
           <Link href="/patient" className="flex items-center gap-2.5" aria-label="اليوم">
-            {brand.logoUrl && <><HospitalLogo brand={brand} className="h-8 max-w-[6.5rem]" /><span aria-hidden="true" className="h-7 w-px bg-line" /></>}
+            {brand.logoUrl && <><HospitalLogo brand={brand} variant="mark" className="h-9" /><span aria-hidden="true" className="h-7 w-px bg-line" /></>}
             <LogoMark className="size-8" />
             <span className="font-display text-lg font-semibold text-ink">مَسار</span>
           </Link>
