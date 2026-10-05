@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { ROLE_LABEL } from "@/lib/status";
 import { fDateTime } from "@/lib/format";
+import { MyDetailsForm } from "@/components/admin/manage";
 
 export const metadata: Metadata = { title: "حسابي" };
 
@@ -17,15 +18,19 @@ export default async function StaffAccount() {
   const viewer = await requireRole(STAFF_ROLES);
   const supabase = await createClient();
   const [{ data: p }, { data: s }] = await Promise.all([
-    supabase.from("profiles").select("full_name, email, phone, last_login_at, role").eq("id", viewer.id).single(),
+    supabase.from("profiles").select("full_name, full_name_en, email, phone, last_login_at, role").eq("id", viewer.id).single(),
     supabase.from("staff_profiles").select("employee_id, title, specialty_code, capacity").eq("user_id", viewer.id).maybeSingle(),
   ]);
   return (
     <div className="max-w-3xl">
-      <PageHeader title="حسابي" description="بيانات حسابك الوظيفي. لتعديل البيانات تواصل مع مدير النظام." />
+      <PageHeader title="حسابي" description={["admin", "super_admin"].includes(viewer.role) ? "عدّل بياناتك هنا. لتغيير بريدك (اسم الدخول) أو بقية بياناتك الوظيفية افتح ملفك في «فريق التأهيل»." : "عدّل اسمك وجوالك ومسماك المهني. البريد الإلكتروني والدور يغيّرهما مدير النظام."} />
       <Card className="mb-5 flex items-center gap-5 p-6">
         <Avatar name={p?.full_name} size="xl" />
         <div><div className="text-xl font-semibold text-ink">{p?.full_name}</div><div className="text-text-2">{s?.title}</div><Badge tone="slate" className="mt-2">{ROLE_LABEL[p?.role ?? "provider"]}</Badge></div>
+      </Card>
+      <Card className="mb-5 p-6">
+        <CardHeader title="بياناتي" action={["admin", "super_admin"].includes(viewer.role) ? <Link href={`/admin/team/${viewer.id}`} className="text-sm text-slate-600 hover:underline">كل البيانات والبريد ←</Link> : undefined} />
+        <MyDetailsForm data={{ full_name: p?.full_name ?? "", full_name_en: p?.full_name_en ?? null, phone: p?.phone ?? null, title: s?.title ?? null }} />
       </Card>
       <Card className="mb-5">
         <CardHeader title="البيانات الوظيفية" />

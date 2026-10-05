@@ -11,28 +11,51 @@ import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ProgressBar } from "@/components/ui/progress";
 import { ROLE_LABEL, USER_STATUS } from "@/lib/status";
-import { fRelative } from "@/lib/format";
+import { fDateTime, fRelative } from "@/lib/format";
+import { LinkTabs } from "@/components/ui/tabs";
+import { RestoreButton } from "@/components/admin/manage";
 
 export const metadata: Metadata = { title: "فريق التأهيل" };
 
-export default async function Team() {
+export default async function Team({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
   const viewer = await requireRole(["supervisor", "admin", "super_admin"]);
+  const removedView = (await searchParams).view === "removed";
   const supabase = await createClient();
   const [{ data: staff }, { data: cl }, { data: specs }] = await Promise.all([
-    supabase.from("profiles").select("id, full_name, email, role, status, last_login_at, staff:staff_profiles(employee_id, title, specialty_code, capacity)").neq("role", "patient").order("full_name"),
+    supabase.from("profiles").select("id, full_name, email, role, status, last_login_at, removed_at, removed_email, removed_reason, staff:staff_profiles(employee_id, title, specialty_code, capacity)").neq("role", "patient").order("full_name"),
     supabase.rpc("provider_caseload"),
     supabase.from("specialties").select("code, name"),
   ]);
   const load = new Map(((cl ?? []) as { provider_id: string; active_episodes: number }[]).map((c) => [c.provider_id, c.active_episodes]));
   const specName = new Map((specs ?? []).map((s) => [s.code, s.name]));
   const isAdmin = ["admin", "super_admin"].includes(viewer.role);
+  const current = (staff ?? []).filter((x) => !x.removed_at);
+  const removed = (staff ?? []).filter((x) => x.removed_at);
   return (
     <div className="mx-auto max-w-7xl">
       <PageHeader title="فريق التأهيل" description="الموظفون، التخصصات، الأدوار، وعبء الحالات. الحسابات شخصية ولا يجوز مشاركتها." actions={isAdmin && <ButtonLink href="/admin/team/new" icon={<UserPlus size={17} />}>موظف جديد</ButtonLink>} />
+      {isAdmin && <LinkTabs className="mb-5" items={[{ href: "/admin/team", label: "الفريق الحالي", count: current.length, active: !removedView }, { href: "/admin/team?view=removed", label: "المحذوفون", count: removed.length, active: removedView }]} />}
+      {removedView && isAdmin ? (
+        <TableShell>
+          <Table>
+            <THead><tr><Th>الموظف</Th><Th>البريد السابق</Th><Th>الدور</Th><Th>حُذف</Th><Th>السبب</Th><Th /></tr></THead>
+            <tbody>{removed.length === 0 ? <Tr><Td colSpan={6} className="py-10 text-center text-text-2">لا توجد حسابات محذوفة.</Td></Tr> : removed.map((s) => (
+              <Tr key={s.id}>
+                <Td><Link href={`/admin/team/${s.id}`} className="flex items-center gap-3 hover:underline"><Avatar name={s.full_name} size="sm" /><span className="font-medium text-ink">{s.full_name}</span></Link></Td>
+                <Td className="text-text-2" dir="ltr">{s.removed_email ?? "—"}</Td>
+                <Td>{ROLE_LABEL[s.role]}</Td>
+                <Td className="text-text-2">{fDateTime(s.removed_at)}</Td>
+                <Td className="max-w-xs text-text-2">{s.removed_reason ?? "—"}</Td>
+                <Td><RestoreButton kind="account" id={s.id} /></Td>
+              </Tr>
+            ))}</tbody>
+          </Table>
+        </TableShell>
+      ) : (
       <TableShell>
         <Table>
           <THead><tr><Th>الموظف</Th><Th>الرقم الوظيفي</Th><Th>التخصص</Th><Th>الدور</Th><Th>عبء الحالات</Th><Th>الحالة</Th><Th>آخر دخول</Th></tr></THead>
-          <tbody>{(staff ?? []).map((s) => {
+          <tbody>{current.map((s) => {
             const sp = s.staff as unknown as { employee_id: string | null; title: string | null; specialty_code: string | null; capacity: number } | null;
             const l = load.get(s.id);
             return (
@@ -50,6 +73,7 @@ export default async function Team() {
           })}</tbody>
         </Table>
       </TableShell>
+      )}
     </div>
   );
 }

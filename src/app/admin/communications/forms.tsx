@@ -1,14 +1,16 @@
 "use client";
 
-import { useActionState, useEffect, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Megaphone, Save, Send } from "lucide-react";
+import { Megaphone, Pencil, Save, Send } from "lucide-react";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { Notice } from "@/components/ui/notice";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { publishAnnouncement, saveAnnouncement, saveMessageTemplate } from "@/lib/actions/admin";
+import { updateAnnouncement, updateMessageTemplate } from "@/lib/actions/manage";
+import { Dialog } from "@/components/ui/overlay";
 
 export function AnnouncementForm() {
   const [state, action] = useActionState(saveAnnouncement, null);
@@ -44,5 +46,51 @@ export function TemplateMsgForm() {
       <Field label="النص" htmlFor="tb"><Textarea id="tb" name="body" rows={3} required /></Field>
       <div className="flex justify-end"><SubmitButton size="sm">إضافة القالب</SubmitButton></div>
     </form>
+  );
+}
+
+export function AnnouncementEdit({ ann }: { ann: { id: string; title: string; body: string; audience: string } }) {
+  const [open, setOpen] = useState(false);
+  const [v, setV] = useState(ann);
+  const [err, setErr] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const router = useRouter();
+  const toast = useToast();
+  return (
+    <>
+      <button type="button" onClick={() => { setV(ann); setErr(null); setOpen(true); }} className="grid size-8 place-items-center rounded-full text-text-2 hover:bg-sand-100 hover:text-ink" aria-label={`تعديل ${ann.title}`}><Pencil size={15} /></button>
+      <Dialog open={open} onClose={() => setOpen(false)} title="تعديل الإعلان" description="التعديل يغيّر نص الإعلان في المنصة. الإشعارات المرسلة سابقًا لا تتغير."
+        footer={<><Button variant="ghost" onClick={() => setOpen(false)}>إلغاء</Button><Button loading={pending} icon={<Save size={16} />} onClick={() => start(async () => { const r = await updateAnnouncement(ann.id, v); if (!r.ok) return setErr(r.error); toast({ tone: "success", title: r.message ?? "تم" }); setOpen(false); router.refresh(); })}>حفظ</Button></>}>
+        <div className="space-y-4">
+          {err && <Notice tone="danger">{err}</Notice>}
+          <Field label="العنوان" htmlFor={`ae-t-${ann.id}`}><Input id={`ae-t-${ann.id}`} value={v.title} onChange={(e) => setV({ ...v, title: e.target.value })} /></Field>
+          <Field label="النص" htmlFor={`ae-b-${ann.id}`}><Textarea id={`ae-b-${ann.id}`} rows={4} value={v.body} onChange={(e) => setV({ ...v, body: e.target.value })} /></Field>
+          <Field label="الجمهور" htmlFor={`ae-a-${ann.id}`}><Select id={`ae-a-${ann.id}`} value={v.audience} onChange={(e) => setV({ ...v, audience: e.target.value })}><option value="all">الجميع</option><option value="patients">المراجعون</option><option value="staff">الموظفون</option></Select></Field>
+        </div>
+      </Dialog>
+    </>
+  );
+}
+
+export function TemplateMsgEdit({ tpl }: { tpl: { id: string; name: string; body: string; category: string } }) {
+  const [open, setOpen] = useState(false);
+  const [v, setV] = useState(tpl);
+  const [err, setErr] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const router = useRouter();
+  const toast = useToast();
+  return (
+    <>
+      <button type="button" onClick={() => { setV(tpl); setErr(null); setOpen(true); }} className="grid size-8 place-items-center rounded-full text-text-2 hover:bg-sand-100 hover:text-ink" aria-label={`تعديل ${tpl.name}`}><Pencil size={15} /></button>
+      <Dialog open={open} onClose={() => setOpen(false)} size="sm" title="تعديل قالب الرسالة"
+        footer={<><Button variant="ghost" onClick={() => setOpen(false)}>إلغاء</Button><Button loading={pending} icon={<Save size={16} />} onClick={() => start(async () => { const r = await updateMessageTemplate(tpl.id, v); if (!r.ok) return setErr(r.error); toast({ tone: "success", title: r.message ?? "تم" }); setOpen(false); router.refresh(); })}>حفظ</Button></>}>
+        <div className="space-y-4">
+          {err && <Notice tone="danger">{err}</Notice>}
+          <Field label="الاسم" htmlFor={`te-n-${tpl.id}`}><Input id={`te-n-${tpl.id}`} value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} /></Field>
+          <Field label="التصنيف" htmlFor={`te-c-${tpl.id}`}><Select id={`te-c-${tpl.id}`} value={v.category} onChange={(e) => setV({ ...v, category: e.target.value })}><option value="general">عام</option><option value="appointment">موعد</option><option value="program">برنامج</option></Select></Field>
+          <Field label="النص" htmlFor={`te-b-${tpl.id}`}><Textarea id={`te-b-${tpl.id}`} rows={4} value={v.body} onChange={(e) => setV({ ...v, body: e.target.value })} /></Field>
+        </div>
+      </Dialog>
+    </>
   );
 }

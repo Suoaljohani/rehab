@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/stat";
 import { Card, CardHeader } from "@/components/ui/card";
 import { TemplateForm } from "../template-form";
 import { TemplateItems } from "./template-items";
+import { RemoveButton } from "@/components/admin/manage";
 
 export const metadata: Metadata = { title: "قالب برنامج" };
 
@@ -25,7 +26,7 @@ export default async function TemplateDetail({ params }: { params: Promise<{ id:
   return (
     <div className="mx-auto max-w-6xl">
       <Link href="/admin/templates" className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-2 hover:text-ink"><ArrowRight size={16} /> قوالب البرامج</Link>
-      <PageHeader title={t.name} description={`الإصدار ${t.version} — التعديلات لا تؤثر على البرامج المنشورة سابقًا.`} />
+      <PageHeader title={t.name} description={`الإصدار ${t.version} — التعديلات لا تؤثر على البرامج المنشورة سابقًا.`} actions={<RemoveButton kind="program_template" id={t.id} name={t.name} label="حذف القالب" variant="secondary" size="md" />} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.2fr]">
         <Card className="h-fit p-6"><CardHeader title="بيانات القالب" /><TemplateForm specialties={specs ?? []} initial={t} /></Card>
         <Card className="p-6"><CardHeader title="تمارين القالب" description="الوصفة والأيام الافتراضية" />

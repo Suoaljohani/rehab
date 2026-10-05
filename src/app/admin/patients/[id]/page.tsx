@@ -13,19 +13,22 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/states";
 import { AccountToggle, CareTeamEditor, NewEpisodeDialog, ScheduleDialog } from "@/components/admin/dialogs";
 import { PhoneEditor } from "@/components/admin/phone-editor";
+import { EpisodeEditDialog, PatientEditDialog, RemoveButton, RestoreButton } from "@/components/admin/manage";
+import { Notice } from "@/components/ui/notice";
 import { APPOINTMENT_STATUS, EPISODE_STATUS, USER_STATUS } from "@/lib/status";
 import { age, fDate, fDateTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "ملف المراجع" };
 
 export default async function AdminPatient({ params }: { params: Promise<{ id: string }> }) {
-  await requireRole(["supervisor", "admin", "super_admin"]);
+  const viewer = await requireRole(["supervisor", "admin", "super_admin"]);
+  const isAdmin = ["admin", "super_admin"].includes(viewer.role);
   const { id } = await params;
   const supabase = await createClient();
   const { data: p } = await supabase.from("patients").select("*, profile:profiles!patients_user_id_fkey(status, last_login_at)").eq("id", id).maybeSingle();
   if (!p) notFound();
   const [{ data: episodes }, { data: appts }, { data: specs }, { data: cl }, { data: sms }] = await Promise.all([
-    supabase.from("episodes").select("id, code, title, status, start_date, end_date, specialty_code, specialty:specialties(name), care_team:care_team_members(id, role, provider_id, ended_at, provider:profiles!care_team_members_provider_id_fkey(full_name))").eq("patient_id", id).order("start_date", { ascending: false }),
+    supabase.from("episodes").select("id, code, title, status, start_date, end_date, specialty_code, referral_reason, referral_source, diagnosis_summary, main_goal, specialty:specialties(name), care_team:care_team_members(id, role, provider_id, ended_at, provider:profiles!care_team_members_provider_id_fkey(full_name))").eq("patient_id", id).order("start_date", { ascending: false }),
     supabase.from("appointments").select("id, starts_at, status, location, provider:profiles!appointments_provider_id_fkey(full_name)").eq("patient_id", id).order("starts_at", { ascending: false }).limit(12),
     supabase.from("specialties").select("code, name").order("sort"),
     supabase.rpc("provider_caseload"),
@@ -36,6 +39,11 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
   return (
     <div className="mx-auto max-w-6xl">
       <Link href="/admin/patients" className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-2 hover:text-ink"><ArrowRight size={16} /> المراجعين</Link>
+      {p.removed_at && (
+        <Notice tone="danger" className="mb-5" title={`ملف محذوف · ${fDateTime(p.removed_at)}`}>
+          <div className="flex flex-wrap items-center justify-between gap-3"><span>أُلغيت رحلاته النشطة ومواعيده القادمة، وأُغلق دخوله. رقم الهوية السابق <span dir="ltr" className="font-mono">{maskNationalId(p.removed_national_id)}</span>.</span>{isAdmin && <RestoreButton kind="patient" id={id} />}</div>
+        </Notice>
+      )}
       <Card tone="travertine" className="mb-6 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -48,7 +56,8 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
           <div className="flex flex-wrap items-center gap-2">
             {p.is_sample && <Badge tone="clay">بيانات عيّنة</Badge>}
             {prof && <StatusBadge map={USER_STATUS} value={prof.status} />}
-            {p.user_id && prof && <AccountToggle userId={p.user_id} status={prof.status} path={`/admin/patients/${id}`} />}
+            {!p.removed_at && <PatientEditDialog patientId={id} data={{ full_name: p.full_name, full_name_en: p.full_name_en, national_id: p.national_id, date_of_birth: p.date_of_birth, sex: p.sex }} />}
+            {p.user_id && prof && !p.removed_at && <AccountToggle userId={p.user_id} status={prof.status} path={`/admin/patients/${id}`} />}
           </div>
         </div>
         <div className="mt-6 border-t border-line/60 pt-5">
@@ -71,7 +80,7 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
               <Card key={e.id}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div><div className="font-semibold text-ink">{e.title}</div><div className="text-xs text-text-2"><span dir="ltr">{e.code}</span> · {(e.specialty as unknown as { name: string })?.name} · {fDate(e.start_date)}{e.end_date ? ` — ${fDate(e.end_date)}` : ""}</div></div>
-                  <div className="flex items-center gap-2"><StatusBadge map={EPISODE_STATUS} value={e.status} size="sm" /><Link href={`/provider/patients/${e.id}`} className="inline-flex items-center gap-1 text-xs text-slate-600 hover:underline">الملف السريري <ExternalLink size={12} /></Link></div>
+                  <div className="flex items-center gap-3"><StatusBadge map={EPISODE_STATUS} value={e.status} size="sm" />{!p.removed_at && <EpisodeEditDialog episodeId={e.id} patientId={id} specialties={specs ?? []} data={{ title: e.title, specialty_code: e.specialty_code, referral_reason: e.referral_reason, referral_source: e.referral_source, diagnosis_summary: e.diagnosis_summary, main_goal: e.main_goal, start_date: e.start_date, end_date: e.end_date }} />}<Link href={`/provider/patients/${e.id}`} className="inline-flex items-center gap-1 text-xs text-slate-600 hover:underline">الملف السريري <ExternalLink size={12} /></Link></div>
                 </div>
                 <div className="mt-4 border-t border-line-soft pt-4"><div className="mb-2 text-xs font-medium text-text-2">فريق الرعاية</div>
                   {["active", "on_hold", "draft"].includes(e.status) ? <CareTeamEditor episodeId={e.id} members={members} providers={providers} /> : <div className="text-sm text-text-2">{members.map((m) => m.name).join("، ") || "—"} <Badge size="sm" tone="muted">للقراءة</Badge></div>}
@@ -106,6 +115,12 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
             })}</ul>
           )}
         </Card>
+        {isAdmin && !p.removed_at && (
+          <Card className="h-fit border-danger/25">
+            <CardHeader title="حذف ملف المراجع" description="يُغلق دخوله ويختفي من القوائم، ويبقى سجله الطبي محفوظًا وقابلًا للاستعادة." />
+            <RemoveButton kind="patient" id={id} name={p.full_name} label="حذف الملف" variant="danger" />
+          </Card>
+        )}
         </div>
       </div>
     </div>

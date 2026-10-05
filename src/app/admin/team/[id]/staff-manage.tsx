@@ -2,17 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { KeyRound, Save } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { Dialog } from "@/components/ui/overlay";
 import { useToast } from "@/components/ui/toast";
-import { resetPassword, setUserRole, updateStaffProfile } from "@/lib/actions/admin";
+import { resetPassword, setUserRole } from "@/lib/actions/admin";
 import { ROLE_LABEL } from "@/lib/status";
 
-export function StaffManage({ userId, role, profile, specialties, self }: { userId: string; role: string; profile: { title: string | null; specialty_code: string | null; capacity: number; employee_id: string | null }; specialties: { code: string; name: string }[]; self: boolean }) {
+export function StaffManage({ userId, role, self }: { userId: string; role: string; self: boolean }) {
   const [r, setR] = useState(role);
-  const [p, setP] = useState(profile);
   const [pwOpen, setPwOpen] = useState(false);
   const [pw, setPw] = useState("");
   const [pending, start] = useTransition();
@@ -21,14 +20,7 @@ export function StaffManage({ userId, role, profile, specialties, self }: { user
   const done = (res: { ok: boolean; error?: string }, msg: string) => { if (!res.ok) toast({ tone: "danger", title: "تعذّر الحفظ", body: res.error }); else { toast({ tone: "success", title: msg }); router.refresh(); } };
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="المسمى المهني" htmlFor="t"><Input id="t" value={p.title ?? ""} onChange={(e) => setP({ ...p, title: e.target.value })} /></Field>
-        <Field label="الرقم الوظيفي" htmlFor="e"><Input id="e" dir="ltr" value={p.employee_id ?? ""} onChange={(e) => setP({ ...p, employee_id: e.target.value })} /></Field>
-        <Field label="التخصص" htmlFor="s"><Select id="s" value={p.specialty_code ?? ""} onChange={(e) => setP({ ...p, specialty_code: e.target.value || null })}><option value="">—</option>{specialties.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}</Select></Field>
-        <Field label="سعة الحالات" htmlFor="c"><Input id="c" type="number" min={0} value={p.capacity} onChange={(e) => setP({ ...p, capacity: Number(e.target.value) })} /></Field>
-      </div>
-      <div className="flex justify-end"><Button loading={pending} icon={<Save size={16} />} onClick={() => start(async () => done(await updateStaffProfile(userId, p), "تم حفظ البيانات الوظيفية"))}>حفظ</Button></div>
-      <div className="grid grid-cols-1 gap-4 border-t border-line-soft pt-6 sm:grid-cols-[1fr_auto] sm:items-end">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
         <Field label="الدور (يُطبّق فورًا ويُسجّل)" htmlFor="r" hint={self ? "لا يمكنك تغيير دورك بنفسك." : undefined}>
           <Select id="r" value={r} disabled={self} onChange={(e) => setR(e.target.value)}>{["provider", "supervisor", "content_reviewer", "admin"].map((x) => <option key={x} value={x}>{ROLE_LABEL[x]}</option>)}</Select>
         </Field>

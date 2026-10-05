@@ -7,7 +7,8 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/states";
 import { fDateTime } from "@/lib/format";
-import { AnnouncementForm, PublishButton, TemplateMsgForm } from "./forms";
+import { AnnouncementEdit, AnnouncementForm, PublishButton, TemplateMsgEdit, TemplateMsgForm } from "./forms";
+import { RemoveButton } from "@/components/admin/manage";
 
 export const metadata: Metadata = { title: "التواصل" };
 
@@ -39,7 +40,7 @@ export default async function Communications() {
               <li key={a.id} className="py-4">
                 <div className="flex items-start justify-between gap-3">
                   <div><div className="font-semibold text-ink">{a.title}</div><div className="mt-0.5 text-xs text-text-2">{A[a.audience]} · {a.published_at ? `نُشر ${fDateTime(a.published_at)}` : "مسودة"}</div></div>
-                  {a.is_published ? <Badge tone="success" size="sm" dot>منشور</Badge> : <PublishButton id={a.id} />}
+                  <div className="flex shrink-0 items-center gap-1">{a.is_published ? <Badge tone="success" size="sm" dot>منشور</Badge> : <PublishButton id={a.id} />}<AnnouncementEdit ann={{ id: a.id, title: a.title, body: a.body, audience: a.audience }} /><RemoveButton kind="announcement" id={a.id} name={a.title} iconOnly /></div>
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-text">{a.body}</p>
               </li>
@@ -50,7 +51,7 @@ export default async function Communications() {
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.2fr]">
         <Card className="h-fit p-6"><CardHeader title="قالب رسالة جديد" description="يظهر لمقدمي الرعاية كردود سريعة." /><TemplateMsgForm /></Card>
         <Card><CardHeader title="قوالب الرسائل" />
-          <ul className="space-y-3">{(tpls ?? []).map((t) => <li key={t.id} className="rounded-[14px] bg-sand-50 p-3 ring-1 ring-sand-200"><div className="text-sm font-semibold text-ink">{t.name}</div><p className="mt-1 text-sm text-text-2">{t.body}</p></li>)}</ul>
+          <ul className="space-y-3">{(tpls ?? []).map((t) => <li key={t.id} className="rounded-[14px] bg-sand-50 p-3 ring-1 ring-sand-200"><div className="flex items-start justify-between gap-2"><div className="text-sm font-semibold text-ink">{t.name}</div><div className="flex shrink-0 items-center gap-1"><TemplateMsgEdit tpl={{ id: t.id, name: t.name, body: t.body, category: t.category }} /><RemoveButton kind="message_template" id={t.id} name={t.name} iconOnly /></div></div><p className="mt-1 text-sm text-text-2">{t.body}</p></li>)}</ul>
         </Card>
       </div>
     </div>

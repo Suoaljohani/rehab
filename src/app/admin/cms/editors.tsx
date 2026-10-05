@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/toast";
 import type { ActionResult } from "@/lib/errors";
 import { saveCmsBlock, saveFaq, saveService } from "@/lib/actions/admin";
+import { createService } from "@/lib/actions/manage";
+import { RemoveButton } from "@/components/admin/manage";
 
 type Json = Record<string, unknown>;
 
@@ -138,6 +140,7 @@ export function ServiceEditor({ service }: { service: Svc }) {
         </div>
         <Checkbox className="mt-4" checked={v.is_published} onChange={(e) => setV({ ...v, is_published: e.target.checked })} label="منشورة على الموقع العام" description="إخفاء الخدمة لا يحذفها ويمكن إعادتها في أي وقت." />
         <SaveBar pending={pending} dirty={JSON.stringify(v) !== base} onSave={() => run(() => saveService(service.id, { name: v.name, summary: v.summary, description: v.description || null, conditions: lines(v.conditions), access_steps: lines(v.access_steps), instructions: lines(v.instructions), sort: v.sort, is_published: v.is_published }), () => setBase(JSON.stringify(v)))} />
+        <div className="mt-3 flex justify-end"><RemoveButton kind="service" id={service.id} name={v.name} label="حذف الخدمة نهائيًا" /></div>
       </div>
     </details>
   );
@@ -167,12 +170,24 @@ export function FaqEditor({ faq, isNew }: { faq: Faq; isNew?: boolean }) {
         )}
         <div className="flex items-center gap-2">
           {!isNew && !v.is_published && <Badge size="sm" tone="muted">مخفي</Badge>}
+          {!isNew && faq.id && <RemoveButton kind="faq" id={faq.id} name={v.question} iconOnly />}
           <Button size="sm" icon={isNew ? <Plus size={15} /> : <Save size={15} />} loading={pending} disabled={!dirty || !v.question.trim() || !v.answer.trim()}
             onClick={() => run(() => saveFaq({ id: faq.id, question: v.question.trim(), answer: v.answer.trim(), sort: v.sort, is_published: v.is_published }), () => { if (isNew) setV(faq); else setBase(JSON.stringify(v)); })}>
             {isNew ? "إضافة" : "حفظ"}
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function NewServiceButton() {
+  const [name, setName] = useState("");
+  const { pending, run } = useSaver();
+  return (
+    <div className="flex flex-wrap items-end gap-2 rounded-[18px] border border-dashed border-slate-300 bg-surface-soft p-4">
+      <Field label="خدمة جديدة" htmlFor="new-svc" className="min-w-56 flex-1"><Input id="new-svc" value={name} placeholder="مثل: تأهيل القلب" onChange={(e) => setName(e.target.value)} /></Field>
+      <Button size="sm" icon={<Plus size={15} />} loading={pending} disabled={name.trim().length < 3} onClick={() => run(() => createService(name), () => setName(""))}>إضافة</Button>
     </div>
   );
 }

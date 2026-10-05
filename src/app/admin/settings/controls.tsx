@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 import type { ActionResult } from "@/lib/errors";
 import { saveSetting, saveSpecialty } from "@/lib/actions/admin";
+import { RemoveButton } from "@/components/admin/manage";
 
 function useRun() {
   const [pending, start] = useTransition();
@@ -77,7 +78,7 @@ export function SpecialtyRow({ code, name, nameEn, sort }: { code: string; name:
       <td className="py-2.5 pe-3"><Input aria-label={`الاسم العربي ${code}`} value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} /></td>
       <td className="py-2.5 pe-3"><Input aria-label={`الاسم الإنجليزي ${code}`} dir="ltr" value={v.name_en} onChange={(e) => setV({ ...v, name_en: e.target.value })} /></td>
       <td className="py-2.5 pe-3"><Input aria-label={`ترتيب ${code}`} type="number" className="w-20" value={v.sort} onChange={(e) => setV({ ...v, sort: Number(e.target.value) })} /></td>
-      <td className="py-2.5 text-end"><Button size="sm" variant={dirty ? "primary" : "quiet"} disabled={!dirty} loading={pending} onClick={() => run(() => saveSpecialty(code, v), () => setBase(JSON.stringify(v)))}>حفظ</Button></td>
+      <td className="py-2.5 text-end"><div className="flex items-center justify-end gap-1"><Button size="sm" variant={dirty ? "primary" : "quiet"} disabled={!dirty} loading={pending} onClick={() => run(() => saveSpecialty(code, v), () => setBase(JSON.stringify(v)))}>حفظ</Button><RemoveButton kind="specialty" id={code} name={name} iconOnly /></div></td>
     </tr>
   );
 }

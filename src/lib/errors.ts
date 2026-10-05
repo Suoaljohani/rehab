@@ -51,6 +51,12 @@ const MESSAGES: Record<string, string> = {
   not_editable: "لا يمكن تعديل هذا التمرين.",
   invalid_body: "اكتب نص الرسالة.",
   invalid_exercise: "التمرين المحدد غير مرتبط ببرنامجك.",
+  removed: "هذا السجل محذوف. استعده أولًا ثم عدّله.",
+  not_removed: "هذا السجل غير محذوف.",
+  last_admin: "لا يمكن حذف آخر مدير نظام فعّال. أضف مديرًا آخر أولًا.",
+  invalid_title: "اكتب عنوانًا واضحًا (٣ أحرف على الأقل).",
+  invalid_dob: "تاريخ الميلاد غير صحيح.",
+  invalid_sex: "قيمة الجنس غير صحيحة.",
 };
 
 export function humanError(err: unknown): string {
@@ -60,6 +66,8 @@ export function humanError(err: unknown): string {
   for (const k of Object.keys(MESSAGES)) if (raw.includes(k)) return MESSAGES[k];
   if (/JWT|session/i.test(raw)) return "انتهت الجلسة. يرجى تسجيل الدخول مجددًا.";
   if (/violates row-level security/i.test(raw)) return MESSAGES.forbidden;
+  if (/violates foreign key constraint|23503/i.test(raw)) return "لا يمكن حذف هذا العنصر لأنه مستخدم في سجلات أخرى. يمكنك إيقافه أو إخفاؤه بدلًا من ذلك.";
+  if (/duplicate key|23505/i.test(raw)) return "القيمة مستخدمة مسبقًا في سجل آخر.";
   if (/fetch failed|network/i.test(raw)) return "تعذّر الاتصال. تحقق من الشبكة وحاول مجددًا.";
   return "حدث خطأ غير متوقع. حاول مرة أخرى.";
 }

@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/states";
 import { buttonClasses } from "@/components/ui/button";
 import { ScheduleDialog } from "@/components/admin/dialogs";
 import { ApptStatusMenu, ChangeDecision, RequestStatusForm, WaitlistForm, WaitlistStatus } from "./actions-ui";
+import { RemoveButton } from "@/components/admin/manage";
 import { APPOINTMENT_STATUS, REQUEST_STATUS } from "@/lib/status";
 import { WEEKDAYS_SHORT, fDate, fDateTime, fRelative, todayISO, addDays } from "@/lib/format";
 import { cn } from "@/lib/cn";
@@ -151,7 +152,7 @@ async function AppointmentsTab({ providers, provider, status }: { providers: { i
               <Td>{(a.specialty as unknown as { name: string } | null)?.name ?? "—"}</Td>
               <Td>{(a.provider as unknown as { full_name: string } | null)?.full_name ?? <span className="text-clay-600">غير محدد</span>}</Td>
               <Td className="text-text-2">{a.location}</Td>
-              <Td><div className="flex items-center gap-2"><StatusBadge map={APPOINTMENT_STATUS} value={a.status} size="sm" /><ApptStatusMenu id={a.id} status={a.status} /></div></Td>
+              <Td><div className="flex items-center gap-2"><StatusBadge map={APPOINTMENT_STATUS} value={a.status} size="sm" /><ApptStatusMenu id={a.id} status={a.status} /><RemoveButton kind="appointment" id={a.id} iconOnly /></div></Td>
             </Tr>
           ))}</tbody>
         </Table>
@@ -196,7 +197,7 @@ async function WaitlistTab({ specialties }: { specialties: { code: string; name:
               <Td>{w.preferred_time ?? "—"}</Td>
               <Td>{w.priority ? <Badge size="sm" tone={w.priority === "priority" ? "clay" : "neutral"}>{P[w.priority]}</Badge> : "—"}</Td>
               <Td className="text-text-2">{fRelative(w.created_at)}</Td>
-              <Td><WaitlistStatus id={w.id} status={w.status} /></Td>
+              <Td><div className="flex items-center gap-1"><WaitlistStatus id={w.id} status={w.status} /><RemoveButton kind="waitlist" id={w.id} iconOnly /></div></Td>
             </Tr>
           ))}</tbody>
         </Table>

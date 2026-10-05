@@ -20,9 +20,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const isProviderArea = viewer.role === "provider";
   const [patients, exercises, providers] = term.length < 2 ? [{ data: [] }, { data: [] }, { data: [] }] : await Promise.all([
     viewer.role === "content_reviewer" ? Promise.resolve({ data: [] as never[] }) :
-      supabase.from("patients").select("id, full_name, mrn, access_id, episodes(id, title, status)").or(/^\d{10}$/.test(term) ? `national_id.eq.${term}` : `full_name.ilike.%${term}%,mrn.ilike.%${term}%`).limit(15),
+      supabase.from("patients").select("id, full_name, mrn, access_id, episodes(id, title, status)").is("removed_at", null).or(/^\d{10}$/.test(term) ? `national_id.eq.${term}` : `full_name.ilike.%${term}%,mrn.ilike.%${term}%`).limit(15),
     supabase.from("exercises").select("id, code, status, current:exercise_versions!exercises_current_fk(name, name_en, body_region)").neq("status", "archived").limit(200),
-    supabase.from("profiles").select("id, full_name, role, staff:staff_profiles(title)").neq("role", "patient").ilike("full_name", `%${term}%`).limit(10),
+    supabase.from("profiles").select("id, full_name, role, staff:staff_profiles(title)").neq("role", "patient").is("removed_at", null).ilike("full_name", `%${term}%`).limit(10),
   ]);
   const exMatches = ((exercises.data ?? []) as unknown as { id: string; code: string; current: { name: string; name_en: string | null; body_region: string | null } | null }[])
     .filter((e) => e.current && (e.current.name.includes(term) || (e.current.name_en ?? "").toLowerCase().includes(term.toLowerCase()) || e.code.toLowerCase().includes(term.toLowerCase())))

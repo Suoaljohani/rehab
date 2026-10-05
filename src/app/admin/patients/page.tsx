@@ -10,21 +10,25 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/states";
 import { EPISODE_STATUS } from "@/lib/status";
-import { fDate, fRelative } from "@/lib/format";
+import { fDate, fDateTime, fRelative } from "@/lib/format";
+import { maskNationalId } from "@/lib/identity";
+import { RestoreButton } from "@/components/admin/manage";
 
 export const metadata: Metadata = { title: "المراجعين" };
 const PAGE = 20;
 
-export default async function AdminPatients({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; specialty?: string; page?: string }> }) {
-  await requireRole(["supervisor", "admin", "super_admin"]);
-  const { q = "", status = "", specialty = "", page = "1" } = await searchParams;
+export default async function AdminPatients({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; specialty?: string; page?: string; view?: string }> }) {
+  const viewer = await requireRole(["supervisor", "admin", "super_admin"]);
+  const { q = "", status = "", specialty = "", page = "1", view = "" } = await searchParams;
+  if (view === "removed") return <RemovedPatients canRestore={["admin", "super_admin"].includes(viewer.role)} />;
   const p = Math.max(1, Number(page) || 1);
   const supabase = await createClient();
-  let query = supabase.from("episodes").select("id, code, title, status, specialty_code, created_at, patient:patients!inner(id, full_name, mrn, access_id, created_at, status), specialty:specialties(name), care_team:care_team_members(role, ended_at, provider:profiles!care_team_members_provider_id_fkey(full_name))", { count: "exact" });
+  let query = supabase.from("episodes").select("id, code, title, status, specialty_code, created_at, patient:patients!inner(id, full_name, mrn, access_id, created_at, status, removed_at), specialty:specialties(name), care_team:care_team_members(role, ended_at, provider:profiles!care_team_members_provider_id_fkey(full_name))", { count: "exact" });
+  query = query.is("patient.removed_at", null);
   if (status) query = query.eq("status", status);
   if (specialty) query = query.eq("specialty_code", specialty);
   const term = q.trim().replace(/[%,()]/g, "");
-  if (term) query = /^\d{10}$/.test(term) ? query.eq("patients.national_id", term) : query.or(`full_name.ilike.%${term}%,mrn.ilike.%${term}%`, { referencedTable: "patients" });
+  if (term) query = /^\d{10}$/.test(term) ? query.eq("patient.national_id", term) : query.or(`full_name.ilike.%${term}%,mrn.ilike.%${term}%`, { referencedTable: "patient" });
   const [{ data, count }, { data: specs }] = await Promise.all([
     query.order("created_at", { ascending: false }).range((p - 1) * PAGE, p * PAGE - 1),
     supabase.from("specialties").select("code, name").order("sort"),
@@ -39,6 +43,7 @@ export default async function AdminPatients({ searchParams }: { searchParams: Pr
   return (
     <div className="mx-auto max-w-7xl">
       <PageHeader title="المراجعين" description="كل ملف مراجع واحد قد يحتوي عدة رحلات تأهيلية — تظهر هنا الرحلات." actions={<>
+        <Link href="/admin/patients?view=removed" className={buttonClasses("ghost")}>المحذوفون</Link>
         <a href={`/admin/patients/export?${new URLSearchParams({ ...(q && { q }), ...(status && { status }), ...(specialty && { specialty }) })}`} className={buttonClasses("quiet")}><Download size={17} /> تصدير CSV</a>
         <ButtonLink href="/admin/patients/new" icon={<UserPlus size={17} />}>مراجع جديد</ButtonLink>
       </>} />
@@ -71,6 +76,30 @@ export default async function AdminPatients({ searchParams }: { searchParams: Pr
             })}</tbody>
           </Table>
         )}
+      </TableShell>
+    </div>
+  );
+}
+
+async function RemovedPatients({ canRestore }: { canRestore: boolean }) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("patients").select("id, full_name, mrn, removed_at, removed_national_id").not("removed_at", "is", null).order("removed_at", { ascending: false });
+  return (
+    <div className="mx-auto max-w-7xl">
+      <PageHeader title="المراجعون المحذوفون" description="ملفات أُغلقت وأُخفيت من القوائم. سجلها الطبي محفوظ ويمكن استعادتها." actions={<ButtonLink href="/admin/patients" variant="secondary">العودة للمراجعين</ButtonLink>} />
+      <TableShell>
+        <Table>
+          <THead><tr><Th>المراجع</Th><Th>رقم الملف</Th><Th>رقم الهوية السابق</Th><Th>حُذف</Th><Th /></tr></THead>
+          <tbody>{(data ?? []).length === 0 ? <Tr><Td colSpan={5} className="py-10 text-center text-text-2">لا توجد ملفات محذوفة.</Td></Tr> : (data ?? []).map((pt) => (
+            <Tr key={pt.id}>
+              <Td><Link href={`/admin/patients/${pt.id}`} className="font-medium text-ink hover:underline">{pt.full_name}</Link></Td>
+              <Td dir="ltr" className="text-text-2">{pt.mrn}</Td>
+              <Td dir="ltr" className="font-mono text-text-2">{maskNationalId(pt.removed_national_id)}</Td>
+              <Td className="text-text-2">{fDateTime(pt.removed_at)}</Td>
+              <Td>{canRestore && <RestoreButton kind="patient" id={pt.id} />}</Td>
+            </Tr>
+          ))}</tbody>
+        </Table>
       </TableShell>
     </div>
   );

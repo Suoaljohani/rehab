@@ -8,7 +8,7 @@ import { LinkTabs } from "@/components/ui/tabs";
 import { Notice } from "@/components/ui/notice";
 import { buttonClasses } from "@/components/ui/button";
 import { fDateTime } from "@/lib/format";
-import { BannerEditor, FaqEditor, ObjectBlockEditor, RowsBlockEditor, ServiceEditor } from "./editors";
+import { BannerEditor, FaqEditor, NewServiceButton, ObjectBlockEditor, RowsBlockEditor, ServiceEditor } from "./editors";
 import { IdentityEditor } from "./identity";
 import { getBrand } from "@/lib/brand";
 
@@ -93,7 +93,8 @@ export default async function Cms({ searchParams }: { searchParams: Promise<{ ta
 
       {tab === "services" && (
         <div className="space-y-3">
-          <p className="mb-2 text-sm text-text-2">افتح الخدمة لتعديلها. إخفاء الخدمة يزيلها من الموقع دون حذف بياناتها.</p>
+          <NewServiceButton />
+          <p className="mb-2 mt-4 text-sm text-text-2">افتح الخدمة لتعديلها. «إخفاء» يزيلها من الموقع مؤقتًا، و«حذف» يزيلها نهائيًا.</p>
           {(services ?? []).map((s) => <ServiceEditor key={s.id} service={s} />)}
         </div>
       )}

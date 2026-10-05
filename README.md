@@ -41,7 +41,7 @@ The official logo of **مستشفى الحديثة العام — Alhadithah Gen
 ## Security model (summary)
 - **RLS on every table.** Access = role + scope: providers see only episodes where they are an active care-team member; patients see only their own data and never internal notes or draft programs.
 - **State changes go through `security definer` RPCs** that re-check authorization, run in one transaction, and write the timeline, notifications and audit trail. Direct status updates are blocked.
-- **Nothing clinical is deleted.** Drafts are discarded, exercises archived, notes revised, accounts disabled, audit events append-only.
+- **Admins edit and remove everything.** Content (services, FAQs, announcements, message and program templates, specialties, appointments, waitlist) is deleted permanently. People (staff, admins including themselves, patients) are removed by closing the account, hiding it everywhere and freeing its email or ID number, while the clinical history stays intact and can be restored. The last active admin cannot remove themselves, and the audit log stays append-only.
 - **Staff policy is enforced server-side**: idle timeout and the optional MFA requirement (`Settings`).
 
 Details: [`supabase/README.md`](supabase/README.md).

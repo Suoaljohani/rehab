@@ -55,8 +55,8 @@ function Cell({ level }: { level: Level }) {
 export default async function Roles() {
   await requireRole(["admin", "super_admin"]);
   const supabase = await createClient();
-  const { data: people } = await supabase.from("profiles").select("id, full_name, role, status").neq("role", "patient").order("full_name");
-  const { count: patients } = await supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "patient");
+  const { data: people } = await supabase.from("profiles").select("id, full_name, role, status").neq("role", "patient").is("removed_at", null).order("full_name");
+  const { count: patients } = await supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "patient").is("removed_at", null);
   const byRole = (r: string) => (people ?? []).filter((p) => p.role === r);
 
   return (
