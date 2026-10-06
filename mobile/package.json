@@ -1,0 +1,22 @@
+{
+  "name": "masar-ios",
+  "private": true,
+  "version": "1.0.0",
+  "description": "مَسار — iPhone app for the Alhadithah General Hospital rehabilitation portal (Capacitor shell over the live portal).",
+  "scripts": {
+    "assets": "node scripts/make-assets.mjs && npx capacitor-assets generate --ios --iconBackgroundColor '#F7F3EE' --splashBackgroundColor '#F7F3EE'",
+    "sync": "cap sync ios",
+    "open": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.2"
+  }
+}

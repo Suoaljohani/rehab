@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لا يوجد اتصال</title>
+<style>
+  :root { --ivory:#F7F3EE; --ink:#29323D; --slate:#44556B; --text2:#6F7680; --sage:#97A88B; --line:#DED6CC; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--ivory); color: var(--ink); font-family: -apple-system, "SF Arabic", "Geeza Pro", system-ui, sans-serif;
+         display: flex; align-items: center; justify-content: center; padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom)); }
+  main { max-width: 360px; text-align: center; }
+  .mark { width: 88px; height: 88px; margin: 0 auto 28px; }
+  h1 { font-size: 24px; margin: 0 0 10px; font-weight: 700; }
+  p { color: var(--text2); line-height: 1.7; margin: 0 0 28px; font-size: 16px; }
+  button { appearance: none; border: 0; background: var(--slate); color: var(--ivory); font: inherit; font-size: 17px; font-weight: 600;
+           height: 52px; width: 100%; border-radius: 16px; cursor: pointer; }
+  button:active { background: var(--ink); }
+  .note { margin-top: 18px; font-size: 13px; color: var(--text2); }
+</style>
+</head>
+<body>
+<main>
+  <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+    <rect x="0.5" y="0.5" width="39" height="39" rx="12" fill="#F1EAE2" stroke="#E6D5C7"/>
+    <path d="M9 28.5c3.2 0 4.6-2.2 6.2-5.6 1.9-4.1 3.7-8.4 8.6-8.4 3.4 0 5.3 1.9 6.7 4.2" stroke="#44556B" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M9 28.5h11" stroke="#44556B" stroke-opacity="0.35" stroke-width="2.4" stroke-linecap="round"/>
+    <circle cx="31" cy="21.6" r="3.1" fill="#97A88B"/>
+  </svg>
+  <h1>لا يوجد اتصال بالإنترنت</h1>
+  <p>تعذّر الوصول إلى مَسار. تحقق من اتصالك بالشبكة ثم حاول مرة أخرى.</p>
+  <button type="button" onclick="location.href='https://rehab-kohl.vercel.app/login'">إعادة المحاولة</button>
+  <div class="note">في الحالات الطارئة اتصل بـ 997</div>
+</main>
+<script>window.addEventListener('online', function () { location.href = 'https://rehab-kohl.vercel.app/login'; });</script>
+</body>
+</html>

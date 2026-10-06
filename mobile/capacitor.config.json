@@ -1,0 +1,32 @@
+{
+  "appId": "sa.alhadithah.masar",
+  "appName": "مسار",
+  "webDir": "www",
+  "server": {
+    "url": "https://rehab-kohl.vercel.app/login",
+    "cleartext": false,
+    "allowNavigation": ["rehab-kohl.vercel.app", "*.supabase.co"],
+    "errorPath": "offline.html"
+  },
+  "ios": {
+    "scheme": "Masar",
+    "contentInset": "always",
+    "backgroundColor": "#F7F3EE",
+    "appendUserAgent": "MasarApp/1.0 (iOS)",
+    "preferredContentMode": "mobile",
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 300,
+      "backgroundColor": "#F7F3EE",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#F7F3EE"
+    }
+  }
+}
