@@ -102,3 +102,20 @@ export function NewSpecialty() {
     </>
   );
 }
+
+/** Segmented choice for a string setting (e.g. the sign-in code channel). */
+export function SettingChoice({ settingKey, value, options, label }: { settingKey: string; value: string; options: { value: string; label: string }[]; label: string }) {
+  const [v, setV] = useState(value);
+  const { pending, run } = useRun();
+  return (
+    <div role="radiogroup" aria-label={label} className="inline-flex rounded-full bg-surface-soft p-1 ring-1 ring-line">
+      {options.map((o) => (
+        <button key={o.value} type="button" role="radio" aria-checked={v === o.value} disabled={pending}
+          onClick={() => { if (o.value !== v) run(() => saveSetting(settingKey, o.value), () => setV(o.value)); }}
+          className={cn("rounded-full px-4 py-1.5 text-sm transition disabled:opacity-60", v === o.value ? "bg-slate-brand text-ivory shadow-[var(--shadow-xs)]" : "text-text-2 hover:text-ink")}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}

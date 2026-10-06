@@ -33,7 +33,7 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
     supabase.from("appointments").select("id, starts_at, status, location, provider:profiles!appointments_provider_id_fkey(full_name)").eq("patient_id", id).order("starts_at", { ascending: false }).limit(12),
     supabase.from("specialties").select("code, name").order("sort"),
     supabase.rpc("provider_caseload"),
-    supabase.from("sms_deliveries").select("id, event, error_code, provider_code, created_at").eq("patient_id", id).order("created_at", { ascending: false }).limit(6),
+    supabase.from("sms_deliveries").select("id, event, channel, error_code, provider_code, created_at").eq("patient_id", id).order("created_at", { ascending: false }).limit(6),
   ]);
   const providers = ((cl ?? []) as { provider_id: string; full_name: string; specialty_code: string | null; active_episodes: number; capacity: number; status: string }[]).filter((c) => c.status === "active").map((c) => ({ id: c.provider_id, full_name: c.full_name, specialty_code: c.specialty_code, active: c.active_episodes, capacity: c.capacity }));
   const prof = p.profile as unknown as { status: string; last_login_at: string | null } | null;
@@ -103,13 +103,13 @@ export default async function AdminPatient({ params }: { params: Promise<{ id: s
           )}
         </Card>
         <Card className="h-fit">
-          <CardHeader title="رسائل رمز الدخول" description="آخر محاولات الدخول عبر SMS — للإجابة عن «لم يصلني الرمز»." />
+          <CardHeader title="رسائل رمز الدخول" description="آخر محاولات إرسال الرمز على واتساب أو برسالة نصية — للإجابة عن «لم يصلني الرمز»." />
           {p.is_sample ? <p className="text-sm text-text-2">ملف عيّنة: لا تُرسل له رسائل.</p> : (sms ?? []).length === 0 ? <p className="text-sm text-text-2">لم يطلب المراجع رمز دخول بعد.</p> : (
             <ul className="divide-y divide-line-soft">{(sms ?? []).map((m) => {
               const e = SMS_EVENT[m.event] ?? { label: m.event, tone: "muted" as const };
               return (
                 <li key={m.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                  <div><div className="text-ink">{e.label}</div><div className="text-xs text-text-2">{fDateTime(m.created_at)}{m.provider_code ? <> · <span dir="ltr" className="font-mono">Twilio {m.provider_code}</span></> : m.error_code ? <> · <span dir="ltr" className="font-mono">{m.error_code}</span></> : null}</div>{m.event === "failed" && <div className="mt-1 text-xs leading-relaxed text-danger-fg">{smsFailureText(m.error_code, m.provider_code)}</div>}</div>
+                  <div><div className="text-ink">{e.label}</div><div className="text-xs text-text-2">{m.channel === "whatsapp" ? "واتساب" : "رسالة نصية"} · {fDateTime(m.created_at)}{m.provider_code ? <> · <span dir="ltr" className="font-mono">Twilio {m.provider_code}</span></> : m.error_code ? <> · <span dir="ltr" className="font-mono">{m.error_code}</span></> : null}</div>{m.event === "failed" && <div className="mt-1 text-xs leading-relaxed text-danger-fg">{smsFailureText(m.error_code, m.provider_code)}</div>}</div>
                   <Badge size="sm" tone={e.tone}>{e.short}</Badge>
                 </li>
               );

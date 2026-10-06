@@ -6,7 +6,7 @@ import { humanError, type ActionResult } from "@/lib/errors";
 import { homeFor, type Role } from "@/lib/auth";
 import { digitsOnly, NATIONAL_ID_RE } from "@/lib/identity";
 
-export async function requestPatientCode(nationalId: string): Promise<ActionResult<{ cooldown: number }>> {
+export async function requestPatientCode(nationalId: string): Promise<ActionResult<{ cooldown: number; channel: "whatsapp" | "sms" }>> {
   const id = digitsOnly(nationalId);
   if (!NATIONAL_ID_RE.test(id)) return { ok: false, error: "رقم الهوية أو الإقامة يتكون من ١٠ أرقام ويبدأ بـ 1 أو 2." };
   const supabase = await createClient();
@@ -15,7 +15,7 @@ export async function requestPatientCode(nationalId: string): Promise<ActionResu
   const { data, error } = await supabase.rpc("request_patient_otp", { p_access_id: id });
   if (error) return { ok: false, error: humanError(error) };
   if (!data?.ok) return { ok: false, error: humanError(data?.error) };
-  return { ok: true, data: { cooldown: Number(data.cooldown ?? 60) } };
+  return { ok: true, data: { cooldown: Number(data.cooldown ?? 60), channel: data.channel === "sms" ? "sms" : "whatsapp" } };
 }
 
 export async function verifyPatientCode(nationalId: string, code: string, next?: string): Promise<ActionResult> {

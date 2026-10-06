@@ -19,11 +19,12 @@ Deep Slate Blue `#44556B` (primary) · Midnight Ink `#29323D` (hover/depth) · S
 Tokens live in `src/app/globals.css`; components in `src/components/ui`. No teal, cyan, neon, harsh gradients or glassmorphism.
 
 ## Sign-in
-- **Patients** enter their **national ID / Iqama number** (10 digits; Arabic or Latin digits both work) and receive a 6-digit code by **SMS** on the mobile registered with the department. The national ID and the mobile are required and unique per patient. The code is never shown on screen.
+- **Patients** enter their **national ID / Iqama number** (10 digits; Arabic or Latin digits both work) and receive a 6-digit code on **WhatsApp** (SMS fallback) at the mobile registered with the department. The national ID and the mobile are required and unique per patient. The code is never shown on screen.
 - **Staff** accounts exist only when an admin creates them in **فريق التأهيل → موظف جديد** with the employee's work email and a temporary password. There is no self sign-up. At first sign-in, and after any admin reset, the employee must choose their own password before any patient data is reachable.
 
-## Patient SMS codes (Supabase Auth · Twilio Verify)
+## Patient sign-in codes: WhatsApp with SMS fallback (Supabase Auth · Twilio Verify)
 - Supabase **Authentication → Sign In / Providers → Phone** is enabled with **Twilio Verify**.
+- Codes go out on **WhatsApp** by default; if WhatsApp delivery fails the code is sent once by SMS. Admins switch the channel and the fallback in **الإعدادات** (`otp_channel`, `otp_sms_fallback`).
 - The patient types only their ID. The database looks up the registered mobile and asks Supabase Auth to text the code, then verifies it and returns the session. The phone number never reaches the browser, and the answer is identical for registered and unregistered IDs.
 - Limits: one code per minute per patient, 5 requests and 10 verification attempts per ID every 15 minutes, on top of Supabase's own limits.
 - Every send and verification is logged in `sms_deliveries`. Staff see it on the patient's admin page; delivery health shows in **الإعدادات**.

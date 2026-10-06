@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { ArrowRight, KeyRound, LogIn, MessageSquareText, RotateCw } from "lucide-react";
+import { ArrowRight, KeyRound, LogIn, MessageCircle, MessageSquareText, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { Notice } from "@/components/ui/notice";
@@ -10,12 +10,14 @@ import { digitsOnly, maskNationalId } from "@/lib/identity";
 
 const CODE_LENGTH = 6;
 
-export function PatientLogin({ next }: { next?: string }) {
+export function PatientLogin({ next, channel: initialChannel = "whatsapp" }: { next?: string; channel?: "whatsapp" | "sms" }) {
   const [step, setStep] = useState<"id" | "code">("id");
   const [nationalId, setNationalId] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [wait, setWait] = useState(0);
+  const [channel, setChannel] = useState(initialChannel);
+  const via = channel === "whatsapp" ? "على واتساب" : "برسالة نصية";
   const [pending, start] = useTransition();
   const codeRef = useRef<HTMLInputElement>(null);
   const submitted = useRef<string | null>(null);
@@ -35,6 +37,7 @@ export function PatientLogin({ next }: { next?: string }) {
       const res = await requestPatientCode(nationalId);
       if (!res.ok) return setError(res.error);
       setWait(res.data?.cooldown ?? 60);
+      if (res.data?.channel) setChannel(res.data.channel);
       setCode("");
       submitted.current = null;
       setStep("code");
@@ -65,8 +68,8 @@ export function PatientLogin({ next }: { next?: string }) {
             onChange={(e) => { setNationalId(digitsOnly(e.target.value).slice(0, 10)); setError(null); }}
             className="h-14 text-center font-mono text-xl tracking-[0.25em]" aria-invalid={!!error} required />
         </Field>
-        <Button type="submit" size="lg" block loading={pending} disabled={nationalId.length !== 10} icon={<MessageSquareText size={18} />}>إرسال رمز التحقق</Button>
-        <p className="text-center text-xs leading-relaxed text-text-2">سيصلك رمز من ٦ أرقام برسالة نصية على جوالك المسجّل لدى القسم.</p>
+        <Button type="submit" size="lg" block loading={pending} disabled={nationalId.length !== 10} icon={channel === "whatsapp" ? <MessageCircle size={18} /> : <MessageSquareText size={18} />}>{channel === "whatsapp" ? "إرسال الرمز على واتساب" : "إرسال رمز التحقق"}</Button>
+        <p className="text-center text-xs leading-relaxed text-text-2">سيصلك رمز من ٦ أرقام {via} على جوالك المسجّل لدى القسم{channel === "whatsapp" ? "، أو برسالة نصية إن لم يتوفر واتساب" : ""}.</p>
       </form>
     );
   }
@@ -76,8 +79,8 @@ export function PatientLogin({ next }: { next?: string }) {
       <button type="button" onClick={() => { setStep("id"); setCode(""); setError(null); }} className="inline-flex items-center gap-1.5 text-sm text-text-2 hover:text-ink">
         <ArrowRight size={16} /> تغيير رقم الهوية <span dir="ltr" className="font-mono text-xs text-text-3">{maskNationalId(nationalId)}</span>
       </button>
-      <Notice tone="sage" icon={<KeyRound size={18} />} title="تحقق من رسائلك">
-        إذا كان رقم الهوية مسجّلًا لدينا فستصلك خلال لحظات رسالة فيها رمز التحقق على جوالك المسجّل. الرمز صالح لمدة قصيرة ولا تشاركه مع أحد.
+      <Notice tone="sage" icon={channel === "whatsapp" ? <MessageCircle size={18} /> : <KeyRound size={18} />} title={channel === "whatsapp" ? "افتح واتساب" : "تحقق من رسائلك"}>
+        إذا كان رقم الهوية مسجّلًا لدينا فسيصلك خلال لحظات رمز التحقق {via} على جوالك المسجّل{channel === "whatsapp" ? "، وإن لم يكن واتساب متاحًا فسيصلك برسالة نصية" : ""}. الرمز صالح لمدة قصيرة ولا تشاركه مع أحد.
       </Notice>
       <Field label="رمز التحقق" htmlFor="code" error={error}>
         <Input ref={codeRef} id="code" name="one-time-code" dir="ltr" inputMode="numeric" autoComplete="one-time-code" maxLength={CODE_LENGTH} placeholder="••••••" value={code}
@@ -98,7 +101,7 @@ export function PatientLogin({ next }: { next?: string }) {
             <RotateCw size={14} /> إعادة إرسال الرمز
           </button>
         )}
-        <p className="text-xs text-text-3">لم تصلك الرسالة؟ تأكد أن رقم جوالك مسجّل لدى القسم، أو تواصل مع الاستقبال لتحديثه.</p>
+        <p className="text-xs text-text-3">لم يصلك الرمز؟ تحقق من {channel === "whatsapp" ? "واتساب ثم الرسائل النصية" : "الرسائل النصية"}، وتأكد أن رقم جوالك مسجّل لدى القسم، أو تواصل مع الاستقبال لتحديثه.</p>
       </div>
     </form>
   );

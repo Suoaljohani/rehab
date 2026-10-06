@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Notice } from "@/components/ui/notice";
 import { fDateTime } from "@/lib/format";
 import { smsFailureText } from "@/lib/sms";
-import { NewSpecialty, SettingNumber, SettingToggle, SpecialtyRow } from "./controls";
+import { NewSpecialty, SettingChoice, SettingNumber, SettingToggle, SpecialtyRow } from "./controls";
 
 export const metadata: Metadata = { title: "الإعدادات" };
 
@@ -59,7 +59,7 @@ export default async function Settings() {
           </ul>
         </Card>
 
-        <SmsHealth />
+        <SmsHealth channel={String(S.otp_channel?.value ?? "whatsapp")} fallback={S.otp_sms_fallback?.value !== false} />
 
         <Card className="p-6">
           <CardHeader title="قواعد تنبيهات المتابعة" description="تحدد متى يظهر المراجع في قائمة «يحتاج انتباهك» لدى مقدم الرعاية." />
@@ -88,10 +88,10 @@ export default async function Settings() {
         </Card>
 
         <Card tone="soft" className="p-6">
-          <CardHeader title="قنوات الإشعار" description="رموز دخول المراجعين تُرسل برسائل SMS. التذكيرات الخارجية مؤجلة للمرحلة الثانية." />
+          <CardHeader title="قنوات الإشعار" description="رموز دخول المراجعين تُرسل على واتساب مع احتياط برسالة نصية. التذكيرات الخارجية مؤجلة للمرحلة الثانية." />
           <div className="flex flex-wrap gap-2">
             <Badge tone="sage" dot>داخل المنصة — مفعّلة</Badge>
-            <Badge tone="sage" dot>SMS — رموز الدخول مفعّلة</Badge>
+            <Badge tone="sage" dot>واتساب / SMS — رموز الدخول مفعّلة</Badge>
             <Badge tone="muted">البريد — المرحلة الثانية</Badge>
             <Badge tone="muted">Push — المرحلة الثانية</Badge>
           </div>
@@ -103,12 +103,12 @@ export default async function Settings() {
 }
 
 
-async function SmsHealth() {
+async function SmsHealth({ channel, fallback }: { channel: string; fallback: boolean }) {
   const supabase = await createClient();
   const since = new Date(Date.now() - 864e5).toISOString();
   const [{ data: day }, { data: lastFail }] = await Promise.all([
     supabase.from("sms_deliveries").select("event").gte("created_at", since),
-    supabase.from("sms_deliveries").select("event, error_code, provider_code, http_status, created_at").in("event", ["failed", "rate_limited", "phone_conflict", "no_phone"]).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("sms_deliveries").select("event, channel, error_code, provider_code, http_status, created_at").in("event", ["failed", "rate_limited", "phone_conflict", "no_phone"]).order("created_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
   const { data: last } = await supabase.from("sms_deliveries").select("event, created_at").in("event", ["sent", "failed", "rate_limited"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
   const count = (e: string) => (day ?? []).filter((d) => d.event === e).length;
@@ -116,8 +116,18 @@ async function SmsHealth() {
   const stats: [string, number][] = [["أُرسلت", count("sent")], ["دخول ناجح", count("verified")], ["رموز مرفوضة", count("rejected")], ["تعذّر الإرسال", count("failed") + count("rate_limited")]];
   return (
     <Card className="p-6">
-      <CardHeader title="رموز دخول المراجعين (SMS)" description="يدخل المراجع برقم هويته، ويصله رمز التحقق عبر Twilio Verify من خلال Supabase Auth."
+      <CardHeader title="رموز دخول المراجعين" description="يدخل المراجع برقم هويته، ويصله رمز التحقق على واتساب أو برسالة نصية عبر Twilio Verify من خلال Supabase Auth."
         action={!last ? <Badge tone="muted">لم يُرسل بعد</Badge> : healthy ? <Badge tone="success" dot>يعمل</Badge> : <Badge tone="danger" dot>يحتاج انتباهًا</Badge>} />
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-[14px] bg-surface-soft/60 p-4 ring-1 ring-line-soft">
+        <div><div className="text-sm font-medium text-ink">قناة الإرسال</div><div className="mt-0.5 text-xs text-text-2">تنطبق فورًا على كل طلبات الدخول الجديدة.</div></div>
+        <SettingChoice settingKey="otp_channel" value={channel === "sms" ? "sms" : "whatsapp"} label="قناة إرسال الرمز" options={[{ value: "whatsapp", label: "واتساب" }, { value: "sms", label: "رسالة نصية" }]} />
+        {channel !== "sms" && (
+          <div className="flex w-full items-center justify-between gap-4 border-t border-line-soft pt-3">
+            <div className="text-sm text-text">إرسال الرمز برسالة نصية تلقائيًا إذا تعذّر واتساب</div>
+            <SettingToggle settingKey="otp_sms_fallback" value={fallback} label="الاحتياط برسالة نصية" />
+          </div>
+        )}
+      </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {stats.map(([l, n]) => (
           <div key={l} className="rounded-[14px] bg-surface-soft p-4 ring-1 ring-line-soft">
@@ -127,11 +137,11 @@ async function SmsHealth() {
         ))}
       </div>
       {lastFail && (
-        <Notice tone={healthy ? "neutral" : "warning"} className="mt-4" title={`آخر تعذّر · ${fDateTime(lastFail.created_at)}`}>
+        <Notice tone={healthy ? "neutral" : "warning"} className="mt-4" title={`آخر تعذّر · ${lastFail.channel === "whatsapp" ? "واتساب" : "رسالة نصية"} · ${fDateTime(lastFail.created_at)}`}>
           {lastFail.event === "no_phone" ? "لا يوجد رقم جوال صالح للمراجع." : smsFailureText(lastFail.error_code, lastFail.provider_code)}{lastFail.provider_code && <span dir="ltr" className="ms-2 font-mono text-xs opacity-70">Twilio {lastFail.provider_code}</span>}
         </Notice>
       )}
-      <p className="mt-4 text-xs leading-relaxed text-text-2">لا يظهر رمز التحقق على الشاشة أبدًا. لا تُرسل رسائل لبيانات العيّنة. يُسمح برمز واحد كل دقيقة لكل مراجع، و٥ طلبات كل ١٥ دقيقة لكل رقم هوية.</p>
+      <p className="mt-4 text-xs leading-relaxed text-text-2">لا يظهر رمز التحقق على الشاشة أبدًا، ولا تُرسل رسائل لبيانات العيّنة. يُسمح برمز واحد كل دقيقة لكل مراجع، و٥ طلبات كل ١٥ دقيقة لكل رقم هوية.</p>
     </Card>
   );
 }
