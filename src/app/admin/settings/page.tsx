@@ -7,6 +7,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Notice } from "@/components/ui/notice";
 import { fDateTime } from "@/lib/format";
+import { smsFailureText } from "@/lib/sms";
 import { NewSpecialty, SettingNumber, SettingToggle, SpecialtyRow } from "./controls";
 
 export const metadata: Metadata = { title: "الإعدادات" };
@@ -101,21 +102,13 @@ export default async function Settings() {
   );
 }
 
-const SMS_ERROR: Record<string, string> = {
-  sms_send_failed: "رفض مزوّد الرسائل الإرسال. إن كان حساب Twilio تجريبيًا فهو يرسل للأرقام الموثّقة فقط — أكمل ملف الامتثال في Twilio.",
-  otp_disabled: "رقم الجوال غير مربوط بحساب دخول المراجع.",
-  over_sms_send_rate_limit: "تجاوز حد الإرسال في Supabase — ارفعه من Authentication › Rate Limits.",
-  gateway_not_configured: "اتصال قاعدة البيانات بخدمة الدخول غير مُعد.",
-  network: "تعذّر الوصول إلى خدمة الدخول.",
-  auth_phone_mismatch: "رقم الجوال مستخدم في حساب آخر — صحّحه من ملف المراجع.",
-};
 
 async function SmsHealth() {
   const supabase = await createClient();
   const since = new Date(Date.now() - 864e5).toISOString();
   const [{ data: day }, { data: lastFail }] = await Promise.all([
     supabase.from("sms_deliveries").select("event").gte("created_at", since),
-    supabase.from("sms_deliveries").select("event, error_code, http_status, created_at").in("event", ["failed", "rate_limited", "phone_conflict", "no_phone"]).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("sms_deliveries").select("event, error_code, provider_code, http_status, created_at").in("event", ["failed", "rate_limited", "phone_conflict", "no_phone"]).order("created_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
   const { data: last } = await supabase.from("sms_deliveries").select("event, created_at").in("event", ["sent", "failed", "rate_limited"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
   const count = (e: string) => (day ?? []).filter((d) => d.event === e).length;
@@ -135,7 +128,7 @@ async function SmsHealth() {
       </div>
       {lastFail && (
         <Notice tone={healthy ? "neutral" : "warning"} className="mt-4" title={`آخر تعذّر · ${fDateTime(lastFail.created_at)}`}>
-          {SMS_ERROR[lastFail.error_code ?? ""] ?? SMS_ERROR[lastFail.event === "no_phone" ? "otp_disabled" : ""] ?? `رمز الخطأ: ${lastFail.error_code ?? lastFail.http_status ?? "غير معروف"}`}
+          {lastFail.event === "no_phone" ? "لا يوجد رقم جوال صالح للمراجع." : smsFailureText(lastFail.error_code, lastFail.provider_code)}{lastFail.provider_code && <span dir="ltr" className="ms-2 font-mono text-xs opacity-70">Twilio {lastFail.provider_code}</span>}
         </Notice>
       )}
       <p className="mt-4 text-xs leading-relaxed text-text-2">لا يظهر رمز التحقق على الشاشة أبدًا. لا تُرسل رسائل لبيانات العيّنة. يُسمح برمز واحد كل دقيقة لكل مراجع، و٥ طلبات كل ١٥ دقيقة لكل رقم هوية.</p>
